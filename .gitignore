@@ -114,3 +114,4 @@ venv.bak/
 service-account.json
 **/.idea/
 **/*.iml
+service-acct.json
