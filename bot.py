@@ -127,43 +127,63 @@ def create_card_response(event_message):
     words = event_message.lower().split()
     for word in words:
         related_questions_list = [each for each in related_questions_list if word in each.lower()]    
-
-    response = dict()
-    cards = list()
-    widgets = list()
-    header = {
-        'header': {
-        'title': 'Search result for '+event_message,
-        'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png',
-        'imageStyle': 'IMAGE'
+    if (len(related_questions_list)==0):
+        return {
+               'cards': [
+                   {
+                       'sections': [
+                           {
+                               'widgets': [
+                                   {
+                                       'textParagraph': {
+                                           'text': 'No result found, please search again.'
+                                       }
+                                   }
+                               ]
+                           }
+                       ]
+                   }
+               ]
+           }        
+        
+        
+    else:
+        response = dict()
+        cards = list()
+        widgets = list()
+        header = {
+            'header': {
+            'title': 'Search result for '+event_message,
+            'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png',
+            'imageStyle': 'IMAGE'
+            }
         }
-    }
-    cards.append(header)
-    
-    for question in related_questions_list:
-        widgets.append({
-            'buttons': [
-                {
-                    'textButton': {
-                        'text': question,
-                        'onClick': {
-                            'action': {
-                                'actionMethodName': INTERACTIVE_TEXT_BUTTON_ACTION,
-                                'parameters': [{
-                                    'key': INTERACTIVE_BUTTON_PARAMETER_KEY,
-                                    'value': question
-                                }]
+        cards.append(header)
+        
+        for question in related_questions_list:
+            widgets.append({
+                'buttons': [
+                    {
+                        'textButton': {
+                            'text': question,
+                            'onClick': {
+                                'action': {
+                                    'actionMethodName': INTERACTIVE_TEXT_BUTTON_ACTION,
+                                    'parameters': [{
+                                        'key': INTERACTIVE_BUTTON_PARAMETER_KEY,
+                                        'value': question
+                                    }]
+                                }
                             }
                         }
                     }
-                }
-            ]
-        })
-    
-    
-    cards.append({ 'sections': [{ 'widgets': widgets }]})
-    response['cards'] = cards
-    return response
+                ]
+            })
+        
+        
+        cards.append({ 'sections': [{ 'widgets': widgets }]})
+        response['cards'] = cards
+        return response
         
 
 

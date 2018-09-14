@@ -1,17 +1,15 @@
 question_dic = {
     "View jobs in 'To Do List'": 1, 
-    'Where is the Pictometry button on the map?': 2,
-    'How can I avoid sifting through menus to find regularly used search.': 3
+    'Multiple Address Search using Map': 2,
+    'Different colours for different jobs': 3
 }       
 questions_list = ["View jobs in 'To Do List'", 
-        'Where is the Pictometry button on the map?',
-        'How can I avoid sifting through menus to find regularly used search.']
+        'Multiple Address Search using Map',
+        'Different colours for different jobs']
 
 
 def getTheAns(question):
-    print(question)
     AnsNum = question_dic[question]
-    print(AnsNum)
     action_response = 'UPDATE_MESSAGE'
     if AnsNum == 1:     
         return {
@@ -21,8 +19,9 @@ def getTheAns(question):
                 "cards": [
                 {
                 'header': {
-                    'title': question
-                 
+                    'title': question,
+                    'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png',
+                    'imageStyle': 'IMAGE'                 
                 }
                 },                      
                 {
@@ -47,6 +46,72 @@ def getTheAns(question):
             ]
         }
 
+    elif AnsNum == 2:   
+        return {
+                'actionResponse': {
+                    'type': action_response
+                },
+                "cards": [
+                {
+                'header': {
+                    'title': question,
+                    'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png',
+                    'imageStyle': 'IMAGE'                 
+                }
+                },
 
+                {
+                "sections": [
+                    {
+                    "widgets": [
+                        {
+                        "buttons": [
+                            {
+                             "textButton": {
+                                "text": "To do this in POSSE Web...",
+                                "onClick": {
+                                  "openLink": {
+                                    "url": "https://drive.google.com/file/d/0B-Bvudy6vrgkbUk0dUZNYWJPVFU/view"
+                                  }
+                                }
+                              }
+                            }
+                         ]
+                        
+                        }
+                ]
+            }
+            ]
+        }
+        ]
+        }
 
-getTheAns("View jobs in 'To Do List'")
+    elif AnsNum == 3:     
+        return {
+                'actionResponse': {
+                    'type': action_response
+                },
+                "cards": [
+                {
+                'header': {
+                    'title': question,
+                    'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png',
+                    'imageStyle': 'IMAGE'                 
+                }
+                },                      
+                {
+                "sections": [
+                        {
+                "widgets": [
+                {
+                    "textParagraph": {
+                    "text": "This function can't be performed in POSSE Web (Winchester)" 
+                    }
+                }
+            ]
+            }
+            ]
+            }
+            ]
+        }
+
