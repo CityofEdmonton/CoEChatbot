@@ -111,17 +111,17 @@ def find_triples(tokens,
 def find_verb_noun(tokens):
     verb_list = []
     noun_list = []
-    all_list = []
+    verb_null_string = ""
     for head, token in enumerate(tokens):
-        if token['partOfSpeech']['tag'] == 'VERB' and token['dependencyEdge']['label'] != 'NSUBJ' and token['lemma']!= 'be' :
+        if token['partOfSpeech']['tag'] == 'VERB' and token['dependencyEdge']['label'] != 'NSUBJ':
             verb_list.append(token['text']['content'])
-            all_list.append(token['text']['content'])
+            verb_null_string+= " "+token['text']['content']
 
         if token['partOfSpeech']['tag'] == 'NOUN':
             noun_list.append(token['text']['content'])
-            all_list.append(token['text']['content'])
+            verb_null_string+= " "+token['text']['content']
 
-    return verb_list, noun_list,all_list
+    return verb_list, noun_list,verb_null_string
 
 
 def show_triple(tokens, text, triple):
@@ -142,7 +142,6 @@ def show_triple(tokens, text, triple):
     right = textwrap.wrap(dobj_text, width=28)
     parsed_string = left[0]+' '+right[0]
     return parsed_string
-    #print (parsed_string)
 
 
 def main(text):
@@ -151,18 +150,10 @@ def main(text):
     parsed_string = None
     analysis = analyze_syntax(text)
     tokens = analysis.get('tokens', [])
-    verb_list, noun_list,all_list = find_verb_noun(tokens)
+    verb_list, noun_list,verb_null_string = find_verb_noun(tokens)
     for triple in find_triples(tokens):
         parsed_string = show_triple(tokens, text, triple)
-
-    if parsed_string != None:
-        parsed_analysis = analyze_syntax(parsed_string)
-        parsed_tokens = parsed_analysis.get('tokens', [])
-        parsed_verb_list, parsed_noun_list, parsed_all_list = find_verb_noun(parsed_tokens)
-        print(parsed_all_list)
-    else:
-        print(all_list)
-
+    return verb_null_string,parsed_string
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

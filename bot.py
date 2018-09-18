@@ -18,6 +18,8 @@ from flask import Flask, render_template, request, json, make_response
 from httplib2 import Http
 from oauth2client.service_account import ServiceAccountCredentials
 from rules import getTheAns,questions_list
+from difflib import SequenceMatcher
+import NLP
 
 app = Flask(__name__)
 
@@ -53,7 +55,27 @@ def home_post():
             .format(event_data['user']['displayName'])) }
 
     elif event_data['type'] == 'MESSAGE':
-        resp = create_card_response(event_data['message']['text'])
+        verb_null_string,parsed_string = NLP.main(event_data['message']['text'])
+        if check_question(parsed_string):
+            resp = create_card_response(verb_null_string,parsed_string)
+        else:
+            return {
+               'cards': [
+                   {
+                       'sections': [
+                           {
+                               'widgets': [
+                                   {
+                                       'textParagraph': {
+                                           'text': 'Please specify the question and search again.'
+                                       }
+                                   }
+                               ]
+                           }
+                       ]
+                   }
+               ]
+           }     
 
 
     elif event_data['type'] == 'CARD_CLICKED':
@@ -113,7 +135,7 @@ def send_async_response(response, space_name, thread_id):
         parent=space_name,
         body=response).execute()
 
-def create_card_response(event_message):
+def create_card_response(verb_null_string,parsed_string):
     """Creates a card response based on the message sent in Hangouts Chat.
 
     See the reference for JSON keys and format for cards:
@@ -123,10 +145,11 @@ def create_card_response(event_message):
         eventMessage: the user's message to the bot
 
     """
-    related_questions_list = questions_list
-    words = event_message.lower().split()
-    for word in words:
-        related_questions_list = [each for each in related_questions_list if word in each.lower()]    
+    related_questions_list = []
+    for each_question in questions_list:
+        if similar(each_question,parsed_string)>=0.6:
+            related_questions_list.append(each_question) 
+
     if (len(related_questions_list)==0):
         return {
                'cards': [
@@ -226,6 +249,20 @@ def respond_to_interactive_card_click(action_name, custom_params):
             }
         ]
     }
+
+def similar(stringA, stringB):
+    return SequenceMatcher(None, stringA.lower(), stringB.lower()).ratio()
+
+
+def check_question(string):
+    if string == None:
+        return False 
+    else:
+        return True 
+
+
+
+
 
 
     
