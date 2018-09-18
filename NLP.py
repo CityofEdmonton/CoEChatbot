@@ -113,7 +113,7 @@ def find_verb_noun(tokens):
     noun_list = []
     all_list = []
     for head, token in enumerate(tokens):
-        if token['partOfSpeech']['tag'] == 'VERB' and token['dependencyEdge']['label'] != 'NSUBJ':
+        if token['partOfSpeech']['tag'] == 'VERB' and token['dependencyEdge']['label'] != 'NSUBJ' and token['lemma']!= 'be' :
             verb_list.append(token['text']['content'])
             all_list.append(token['text']['content'])
 
@@ -138,22 +138,30 @@ def show_triple(tokens, text, triple):
     verb_text = tokens[verb]['text']['content']
     dobj_text = phrase_text_for_head(tokens, text, dobj)
 
-    key_list = textwrap.wrap(verb_text, width=10)
+    left = textwrap.wrap(verb_text, width=10)
     right = textwrap.wrap(dobj_text, width=28)
-    for word in right:
-        key_list.append(word)
-    print (key_list)
+    parsed_string = left[0]+' '+right[0]
+    return parsed_string
+    #print (parsed_string)
 
 
 def main(text):
     # Extracts subject-verb-object triples from the given text file,
     # and print each one.
+    parsed_string = None
     analysis = analyze_syntax(text)
     tokens = analysis.get('tokens', [])
     verb_list, noun_list,all_list = find_verb_noun(tokens)
-    print(all_list)
     for triple in find_triples(tokens):
-        show_triple(tokens, text, triple)
+        parsed_string = show_triple(tokens, text, triple)
+
+    if parsed_string != None:
+        parsed_analysis = analyze_syntax(parsed_string)
+        parsed_tokens = parsed_analysis.get('tokens', [])
+        parsed_verb_list, parsed_noun_list, parsed_all_list = find_verb_noun(parsed_tokens)
+        print(parsed_all_list)
+    else:
+        print(all_list)
 
 
 if __name__ == '__main__':
