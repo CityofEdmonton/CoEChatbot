@@ -17,7 +17,7 @@ from apiclient.discovery import build, build_from_document
 from flask import Flask, render_template, request, json, make_response
 from httplib2 import Http
 from oauth2client.service_account import ServiceAccountCredentials
-from rules import getTheAns,questions_list
+from rules import getTheAns,questions_list,CHEER_LIST
 from difflib import SequenceMatcher
 import NLP
 
@@ -55,29 +55,8 @@ def home_post():
             .format(event_data['user']['displayName'])) }
 
     elif event_data['type'] == 'MESSAGE':
-
         verb_null_string,parsed_string = NLP.main(event_data['message']['text'])
-        print(verb_null_string,"+",parsed_string)
-        if check_question(verb_null_string) is True:
-            resp = create_card_response(verb_null_string,parsed_string,event_data['message']['text'])
-        else:
-            return {
-               'cards': [
-                   {
-                       'sections': [
-                           {
-                               'widgets': [
-                                   {
-                                       'textParagraph': {
-                                           'text': 'Please specify the question and search again.'
-                                       }
-                                   }
-                               ]
-                           }
-                       ]
-                   }
-               ]
-           }     
+        resp = create_card_response(verb_null_string,parsed_string,event_data['message']['text'],event_data['user']['displayName'])     
 
 
     elif event_data['type'] == 'CARD_CLICKED':
@@ -137,7 +116,7 @@ def send_async_response(response, space_name, thread_id):
         parent=space_name,
         body=response).execute()
 
-def create_card_response(verb_null_string,parsed_string,event_message):
+def create_card_response(verb_null_string,parsed_string,event_message,user_name):
     """Creates a card response based on the message sent in Hangouts Chat.
 
     See the reference for JSON keys and format for cards:
@@ -147,69 +126,89 @@ def create_card_response(verb_null_string,parsed_string,event_message):
         eventMessage: the user's message to the bot
 
     """
-    related_questions_list = []
-    for each_question in questions_list:
-        print(each_question,"compare",verb_null_string)
-        if similar(each_question,verb_null_string)>=0.5:
-            related_questions_list.append(each_question) 
-
-    if (len(related_questions_list)==0):
+    
+    if event_message.lower() in CHEER_LIST:
         return {
-               'cards': [
-                   {
-                       'sections': [
-                           {
-                               'widgets': [
-                                   {
-                                       'textParagraph': {
-                                           'text': 'No result found, please search again.'
+                   'cards': [
+                       {
+                           'sections': [
+                               {
+                                   'widgets': [
+                                       {
+                                           'textParagraph': {
+                                               'text': 'Hi '+user_name+'! What question do you have today?'
+                                           }
                                        }
-                                   }
-                               ]
-                           }
-                       ]
-                   }
-               ]
-           }        
-        
-        
+                                   ]
+                               }
+                           ]
+                       }
+                   ]
+               } 
     else:
-        response = dict()
-        cards = list()
-        widgets = list()
-        header = {
-            'header': {
-            'title': 'Search result for '+event_message,
-            'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png',
-            'imageStyle': 'IMAGE'
+        related_questions_list = []
+        for each_question in questions_list:
+            print(each_question,"compare",verb_null_string)
+            if similar(each_question,verb_null_string)>=0.5:
+                related_questions_list.append(each_question) 
+    
+        if (len(related_questions_list)==0):
+            return {
+                   'cards': [
+                       {
+                           'sections': [
+                               {
+                                   'widgets': [
+                                       {
+                                           'textParagraph': {
+                                               'text': 'No result found, please search again.'
+                                           }
+                                       }
+                                   ]
+                               }
+                           ]
+                       }
+                   ]
+               }        
+            
+            
+        else:
+            response = dict()
+            cards = list()
+            widgets = list()
+            header = {
+                'header': {
+                'title': 'Search result for '+event_message,
+                'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png',
+                'imageStyle': 'IMAGE'
+                }
             }
-        }
-        cards.append(header)
-        
-        for question in related_questions_list:
-            widgets.append({
-                'buttons': [
-                    {
-                        'textButton': {
-                            'text': question,
-                            'onClick': {
-                                'action': {
-                                    'actionMethodName': INTERACTIVE_TEXT_BUTTON_ACTION,
-                                    'parameters': [{
-                                        'key': INTERACTIVE_BUTTON_PARAMETER_KEY,
-                                        'value': question
-                                    }]
+            cards.append(header)
+            
+            for question in related_questions_list:
+                widgets.append({
+                    'buttons': [
+                        {
+                            'textButton': {
+                                'text': question,
+                                'onClick': {
+                                    'action': {
+                                        'actionMethodName': INTERACTIVE_TEXT_BUTTON_ACTION,
+                                        'parameters': [{
+                                            'key': INTERACTIVE_BUTTON_PARAMETER_KEY,
+                                            'value': question
+                                        }]
+                                    }
                                 }
                             }
                         }
-                    }
-                ]
-            })
-        
-        
-        cards.append({ 'sections': [{ 'widgets': widgets }]})
-        response['cards'] = cards
-        return response
+                    ]
+                })
+            
+            
+            cards.append({ 'sections': [{ 'widgets': widgets }]})
+            response['cards'] = cards
+            return response
         
 
 

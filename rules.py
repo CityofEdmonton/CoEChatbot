@@ -8,6 +8,10 @@ questions_list = ["View jobs in 'To Do List'",
         'Multiple Address Search using Map',
         'Different colours for different jobs']
 
+CHEER_LIST=['hi','hello','how are you?']
+
+
+
 
 def getTheAns(question):
     AnsNum = question_dic[question]
