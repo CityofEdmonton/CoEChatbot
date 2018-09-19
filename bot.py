@@ -174,24 +174,7 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
 
     
     else:
-        related_questions_list = []
-        higest_rate = 0
-        higest_question = None
-        for each_question,each_answer in Rules_dic.items():
-            similar_rate = similar(each_question,verb_null_string)
-            if higest_rate == 0:
-                higest_rate = similar_rate
-                higest_question = each_question
-            else:
-                if similar_rate>higest_rate:
-                    higest_rate = similar_rate
-                    higest_question = each_question
-
-        related_questions_list.append(higest_question) 
-
-
-            #if similar(each_question,verb_null_string)>=SIMILAR_RATE:
-            #    related_questions_list.append(each_question) 
+        related_questions_list=search_highest_rate(verb_null_string)
     
         if (len(related_questions_list)==0):
             return {
@@ -228,22 +211,8 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
             
             for question in related_questions_list:
                 widgets.append({
-                    'buttons': [
-                        {
-                            'textButton': {
-                                'text': question,
-                                'onClick': {
-                                    'action': {
-                                        'actionMethodName': INTERACTIVE_TEXT_BUTTON_ACTION,
-                                        'parameters': [{
-                                            'key': INTERACTIVE_BUTTON_PARAMETER_KEY,
-                                            'value': question
-                                        }]
-                                    }
-                                }
-                            }
-                        }
-                    ]
+                    'buttons': [{'textButton': {'text': question,'onClick': {'action': {'actionMethodName': INTERACTIVE_TEXT_BUTTON_ACTION,'parameters': [{'key': INTERACTIVE_BUTTON_PARAMETER_KEY,'value': question
+                                        }]}}}}]
                 })
             
             
@@ -296,7 +265,26 @@ def similar(stringA, stringB):
     return SequenceMatcher(None, stringA.lower(), stringB.lower()).ratio()
 
 
+def search_highest_rate(verb_null_string):
+    related_questions_list = []
+    higest_rate = 0
+    higest_question = None
+    for each_question,each_answer in Rules_dic.items():
+        similar_rate = similar(each_question,verb_null_string)
+        if higest_rate == 0:
+            higest_rate = similar_rate
+            higest_question = each_question
+        else:
+            if similar_rate>higest_rate:
+                higest_rate = similar_rate
+                higest_question = each_question
+    if higest_rate > 0.3:
+        related_questions_list.append(higest_question)
+    return related_questions_list
 
 
-
-    
+def search_related_rate(verb_null_string):
+    for each_question,each_answer in Rules_dic.items():
+        if similar(each_question,verb_null_string)>=SIMILAR_RATE:
+            related_questions_list.append(each_question)
+    return related_questions_list

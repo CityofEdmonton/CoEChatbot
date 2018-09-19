@@ -63,14 +63,15 @@ def getTheAns(question):
         return cardsFactory._respons_text_card(action_response,question,theAnswer)  
 
     elif AnsNum == 200:
-        theAnswer = ("Online chat is just another service channel besides the in-person, telephone, text, web, and App channels."
-            "Online chat has existed for many years but is not as popular as today because it requires extra customer service representatives available to answer questions instantly." 
-            "The City didn't offer the online chat service to the citizen and employee because it requires significant extra FTEs which the City cannot afford." 
-            "With the new natural language processing and machine learning technologies, an intelligent online chat robot(Chatbot)becomes feasible and industries adopt Chatbot quickly(e.g. Fido, ATB, etc)."
-            " The City have the opportunity to offer the online chat service to the citizen and employee with much less required extra FTEs."
+        theAnswer = ("Online chat is just another service channel besides the in-person, telephone, text, web, and App channels.\n"
+            "Online chat has existed for many years but is not as popular as today because it requires extra customer service representatives available to answer questions instantly.\n" 
+            "The City didn't offer the online chat service to the citizen and employee because it requires significant extra FTEs which the City cannot afford.\n" 
+            "With the new natural language processing and machine learning technologies, an intelligent online chat robot(Chatbot)becomes feasible and industries adopt Chatbot quickly(e.g. Fido, ATB, etc).\n"
+            "The City have the opportunity to offer the online chat service to the citizen and employee with much less required extra FTEs."
             "Gartner published an articles in August, 2017, stating:\n"
-            "'By 2020, 25 percentage of customer service and support operations will integrate virtual customer assistant technology across engagement channels."
-            "Citizens have a growing expectation of being able to access government services via conversational applications. However, most government services, particularly those that involve care or case management, will require human involvement for the foreseeable future.'"
+            "By 2020, 25 percentage of customer service and support operations will integrate virtual customer assistant technology across engagement channels.\n"
+            "Citizens have a growing expectation of being able to access government services via conversational applications. \n"
+            "However, most government services, particularly those that involve care or case management, will require human involvement for the foreseeable future.\n"
             ) 
         return cardsFactory._respons_text_card(action_response,question,theAnswer)  
 
@@ -134,8 +135,8 @@ def getTheAns(question):
 
 
     elif AnsNum == 700:
-        theAnswer = "There are three types of use cases at City of Edmonton. 1) generic chatbot: 311, inside information; 2) specific chatbot: ets bus schedule, Google support, SAP support; 3) something in between: ets, it, hr, procurement." 
+        theAnswer = "There are three types of use cases at City of Edmonton. \n1) generic chatbot: 311, inside information; \n2) specific chatbot: ets bus schedule, Google support, SAP support; \n3) something in between: ets, it, hr, procurement." 
         return cardsFactory._respons_text_card(action_response,question,theAnswer)  
     elif AnsNum == 800:
-        theAnswer = "1) Start to build a chatbot for POSSE, Google and other Chatbot-ready support teams. 2) Engage business areas to explore the Chatbot opportunities." 
+        theAnswer = "1) Start to build a chatbot for POSSE, Google and other Chatbot-ready support teams. \n2) Engage business areas to explore the Chatbot opportunities." 
         return cardsFactory._respons_text_card(action_response,question,theAnswer)     
