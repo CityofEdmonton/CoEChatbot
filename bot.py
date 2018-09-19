@@ -17,9 +17,11 @@ from apiclient.discovery import build, build_from_document
 from flask import Flask, render_template, request, json, make_response
 from httplib2 import Http
 from oauth2client.service_account import ServiceAccountCredentials
-from rules import getTheAns,questions_list,CHEER_LIST
+from rules import getTheAns,CHEER_LIST,QUESTION_DIC
 from difflib import SequenceMatcher
 import NLP
+
+SIMILAR_RATE = 0.5
 
 app = Flask(__name__)
 
@@ -136,7 +138,7 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
                                    'widgets': [
                                        {
                                            'textParagraph': {
-                                               'text': 'Hi '+user_name+'! What question do you have today?'
+                                               'text': 'Hi '+user_name+'! :) What question do you have today?'
                                            }
                                        }
                                    ]
@@ -147,9 +149,8 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
                } 
     else:
         related_questions_list = []
-        for each_question in questions_list:
-            print(each_question,"compare",verb_null_string)
-            if similar(each_question,verb_null_string)>=0.5:
+        for each_question,each_answer in QUESTION_DIC.items():
+            if similar(each_question,verb_null_string)>=SIMILAR_RATE:
                 related_questions_list.append(each_question) 
     
         if (len(related_questions_list)==0):
@@ -229,7 +230,6 @@ def respond_to_interactive_card_click(action_name, custom_params):
         theAnswer = getTheAns(question)
         return theAnswer
     else:
-        original_message = '<i>Cannot determine original message</i>'
         action_response = 'UPDATE_MESSAGE'
         return {
         'actionResponse': {
@@ -254,14 +254,6 @@ def respond_to_interactive_card_click(action_name, custom_params):
 
 def similar(stringA, stringB):
     return SequenceMatcher(None, stringA.lower(), stringB.lower()).ratio()
-
-
-def check_question(string):
-    if string == None:
-        return False 
-    else:
-        return True 
-
 
 
 

@@ -1,122 +1,43 @@
-question_dic = {
+import cardsFactory
+
+QUESTION_DIC = {
     "View jobs in 'To Do List'": 1, 
     'Multiple Address Search using Map': 2,
     'Different colours for different jobs': 3,
-    'perform a Job Search by Addres on one or more address/units': 4
+    'Assign an inspection/process to nobody': 4
 }       
-questions_list = ["View jobs in 'To Do List'", 
-        'Multiple Address Search using Map',
-        'Different colours for different jobs']
 
 CHEER_LIST=['hi','hello','how are you?']
 
 
 
-
 def getTheAns(question):
-    AnsNum = question_dic[question]
+    AnsNum = QUESTION_DIC[question]
     action_response = 'UPDATE_MESSAGE'
-    if AnsNum == 1:     
-        return {
-                'actionResponse': {
-                    'type': action_response
-                },
-                "cards": [
-                {
-                'header': {
-                    'title': question,
-                    'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png',
-                    'imageStyle': 'IMAGE'                 
-                }
-                },                      
-                {
-                "sections": [
-                        {
-                "widgets": [
-                {
-                    "textParagraph": {
-                    "text": "By default you only see jobs that are scheduled before the current date.\n" 
-                    "Job that have a future scheduled date are not displayed. To display these jobs follow these simple steps:\n"
-                    "1. Open the 'To Do List'\n"+
-                    "2. Click the criteria button\n"+
-                    "3. Uncheck the 'Current Only' checkbox\n"+
-                    "4. Now all you jobs are displayed\n"
-    
-                    }
-                }
-            ]
-            }
-            ]
-            }
-            ]
-        }
+    if AnsNum == 1:   
+        theAnswer = ("By default you only see jobs that are scheduled before the current date.\n"
+            "Job that have a future scheduled date are not displayed. To display these jobs follow these simple steps:\n"
+            "1. Open the 'To Do List'\n"
+            "2. Click the criteria button\n"
+            "3. Uncheck the 'Current Only' checkbox\n"
+            "4. Now all you jobs are displayed\n")
+        return cardsFactory._respons_text_card(action_response,question,theAnswer)
 
-    elif AnsNum == 2:   
-        return {
-                'actionResponse': {
-                    'type': action_response
-                },
-                "cards": [
-                {
-                'header': {
-                    'title': question,
-                    'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png',
-                    'imageStyle': 'IMAGE'                 
-                }
-                },
+    elif AnsNum == 2:  
+        theAnswer =  "To do this in POSSE Web..."
+        url =  "https://drive.google.com/file/d/0B-Bvudy6vrgkbUk0dUZNYWJPVFU/view"
+        return cardsFactory._respons_textButton_card(action_response,question,theAnswer, url)
 
-                {
-                "sections": [
-                    {
-                    "widgets": [
-                        {
-                        "buttons": [
-                            {
-                             "textButton": {
-                                "text": "To do this in POSSE Web...",
-                                "onClick": {
-                                  "openLink": {
-                                    "url": "https://drive.google.com/file/d/0B-Bvudy6vrgkbUk0dUZNYWJPVFU/view"
-                                  }
-                                }
-                              }
-                            }
-                         ]
-                        
-                        }
-                ]
-            }
-            ]
-        }
-        ]
-        }
+    elif AnsNum == 3:
+        theAnswer = "This function can't be performed in POSSE Web (Winchester)" 
+        return cardsFactory._respons_text_card(action_response,question,theAnswer)     
 
-    elif AnsNum == 3:     
-        return {
-                'actionResponse': {
-                    'type': action_response
-                },
-                "cards": [
-                {
-                'header': {
-                    'title': question,
-                    'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png',
-                    'imageStyle': 'IMAGE'                 
-                }
-                },                      
-                {
-                "sections": [
-                        {
-                "widgets": [
-                {
-                    "textParagraph": {
-                    "text": "This function can't be performed in POSSE Web (Winchester)" 
-                    }
-                }
-            ]
-            }
-            ]
-            }
-            ]
-        }
-
+    elif AnsNum == 4:
+        theAnswer = ("If you want to assign an inspection to nobody you just have to remove the person on that process.\n"
+                     "1. Open the job and then the specific process that you want unassigned\n"
+                     "2.Remove anybody that is on the process\n"
+                     "3.Click the checkbox beside the person's name\n"
+                     "4.Click the remove button\n"
+                     "5.Done\n")
+        
+        return cardsFactory._respons_text_card(action_response,question,theAnswer) 
