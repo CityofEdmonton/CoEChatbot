@@ -55,9 +55,11 @@ def home_post():
             .format(event_data['user']['displayName'])) }
 
     elif event_data['type'] == 'MESSAGE':
+
         verb_null_string,parsed_string = NLP.main(event_data['message']['text'])
-        if check_question(parsed_string):
-            resp = create_card_response(verb_null_string,parsed_string)
+        print(verb_null_string,"+",parsed_string)
+        if check_question(verb_null_string) is True:
+            resp = create_card_response(verb_null_string,parsed_string,event_data['message']['text'])
         else:
             return {
                'cards': [
@@ -135,7 +137,7 @@ def send_async_response(response, space_name, thread_id):
         parent=space_name,
         body=response).execute()
 
-def create_card_response(verb_null_string,parsed_string):
+def create_card_response(verb_null_string,parsed_string,event_message):
     """Creates a card response based on the message sent in Hangouts Chat.
 
     See the reference for JSON keys and format for cards:
@@ -147,7 +149,8 @@ def create_card_response(verb_null_string,parsed_string):
     """
     related_questions_list = []
     for each_question in questions_list:
-        if similar(each_question,parsed_string)>=0.6:
+        print(each_question,"compare",verb_null_string)
+        if similar(each_question,verb_null_string)>=0.5:
             related_questions_list.append(each_question) 
 
     if (len(related_questions_list)==0):

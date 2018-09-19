@@ -121,7 +121,7 @@ def find_verb_noun(tokens):
             noun_list.append(token['text']['content'])
             verb_null_string+= " "+token['text']['content']
 
-    return verb_list, noun_list,verb_null_string
+    return verb_list, noun_list,verb_null_string.strip()
 
 
 def show_triple(tokens, text, triple):
@@ -153,6 +153,7 @@ def main(text):
     verb_list, noun_list,verb_null_string = find_verb_noun(tokens)
     for triple in find_triples(tokens):
         parsed_string = show_triple(tokens, text, triple)
+
     return verb_null_string,parsed_string
 
 if __name__ == '__main__':
