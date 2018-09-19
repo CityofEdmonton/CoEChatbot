@@ -17,11 +17,12 @@ from apiclient.discovery import build, build_from_document
 from flask import Flask, render_template, request, json, make_response
 from httplib2 import Http
 from oauth2client.service_account import ServiceAccountCredentials
-from rules import getTheAns,CHEER_LIST,QUESTION_DIC
+from rules import getTheAns,CHEER_LIST,QUESTION_DIC,BYE_LIST, DEMO_QUESTION_DIC
 from difflib import SequenceMatcher
 import NLP
 
-SIMILAR_RATE = 0.5
+Rules_dic = DEMO_QUESTION_DIC
+SIMILAR_RATE = 0.35
 
 app = Flask(__name__)
 
@@ -138,7 +139,10 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
                                    'widgets': [
                                        {
                                            'textParagraph': {
-                                               'text': 'Hi '+user_name+'! :) What question do you have today?'
+                                               'text': 'Hey! '+user_name+
+                                               ' Welcome to Chatbot about Chatbot :D You can ask me chatbot type, opportunities, use cases in industry,'+
+                                               ' municipal government, or at the City, my findings and recommendations, next steps.'
+
                                            }
                                        }
                                    ]
@@ -147,11 +151,47 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
                        }
                    ]
                } 
+
+    elif event_message.lower() in BYE_LIST:
+        return {
+                   'cards': [
+                       {
+                           'sections': [
+                               {
+                                   'widgets': [
+                                       {
+                                           'textParagraph': {
+                                               'text': 'Bye. Thank you very much for chatting with me. Hope the information provided is helpful. Have a nice day!'
+
+                                           }
+                                       }
+                                   ]
+                               }
+                           ]
+                       }
+                   ]
+               } 
+
+    
     else:
         related_questions_list = []
-        for each_question,each_answer in QUESTION_DIC.items():
-            if similar(each_question,verb_null_string)>=SIMILAR_RATE:
-                related_questions_list.append(each_question) 
+        higest_rate = 0
+        higest_question = None
+        for each_question,each_answer in Rules_dic.items():
+            similar_rate = similar(each_question,verb_null_string)
+            if higest_rate == 0:
+                higest_rate = similar_rate
+                higest_question = each_question
+            else:
+                if similar_rate>higest_rate:
+                    higest_rate = similar_rate
+                    higest_question = each_question
+
+        related_questions_list.append(higest_question) 
+
+
+            #if similar(each_question,verb_null_string)>=SIMILAR_RATE:
+            #    related_questions_list.append(each_question) 
     
         if (len(related_questions_list)==0):
             return {
