@@ -1,6 +1,6 @@
 import cardsFactory
-
-QUESTION_DIC = {
+# Different dics for different usage 
+POSSE_QUESTION_DIC = {
     "View jobs in 'To Do List'": 1, 
     'Multiple Address Search using Map': 2,
     'Different colours for different jobs': 3,
@@ -16,16 +16,16 @@ DEMO_QUESTION_DIC = {
     'Benefits': 600,
     'Use cases for COE':700,
     'Next steps':800
-
 }       
-
+# Global varables for the Chatbot 
+QUESTION_DIC = DEMO_QUESTION_DIC
 CHEER_LIST=['hi','hello','how are you?','how are you']
 BYE_LIST=['thank you','goodbye','bye']
-
+# Global varables for the Chatbot 
 
 
 def getTheAns(question):
-    AnsNum = DEMO_QUESTION_DIC[question]
+    AnsNum = QUESTION_DIC[question]
     action_response = 'UPDATE_MESSAGE'
     if AnsNum == 1:   
         theAnswer = ("By default you only see jobs that are scheduled before the current date.\n"
@@ -72,7 +72,6 @@ def getTheAns(question):
             ) 
         return cardsFactory._respons_text_card(action_response,question,theAnswer)  
 
-
     elif AnsNum == 300:
         theAnswer = ("Online chat is just another service channel besides in-person, telephone, text, web, and App channels. Typical use cases of Chatbot could be found in the following industries:\n"
                     "Financial Services\n"
@@ -108,7 +107,6 @@ def getTheAns(question):
         theAnswer = ("Start with specific chatbots (eg. POSSE or Google support) to build internal expertise and explore different technologies. Specific chatbot is easy to implement and can provide expected user experiences")
         return cardsFactory._respons_text_card(action_response,question,theAnswer)  
 
-
     elif AnsNum == 600:
         theAnswer = ("Here are just some general benefits to citizens:\n"
                     "1. Citizens can get a quick access to public data.\n"
@@ -132,6 +130,7 @@ def getTheAns(question):
     elif AnsNum == 700:
         theAnswer = "There are three types of use cases at City of Edmonton. \n1) generic chatbot: 311, inside information; \n2) specific chatbot: ETS bus schedule, Google support, SAP support; \n3) something in between: ETS, IT, HR, procurement." 
         return cardsFactory._respons_text_card(action_response,question,theAnswer)  
+
     elif AnsNum == 800:
         theAnswer = "1) Start to build a chatbot for POSSE, Google and other Chatbot-ready support teams. \n2) Engage business areas to explore the Chatbot opportunities." 
         return cardsFactory._respons_text_card(action_response,question,theAnswer)     

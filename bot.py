@@ -13,15 +13,15 @@
 # limitations under the License.
 
 import logging
+import rules
+import NLP
+import cardsFactory
 from apiclient.discovery import build, build_from_document
 from flask import Flask, render_template, request, json, make_response
 from httplib2 import Http
 from oauth2client.service_account import ServiceAccountCredentials
-from rules import getTheAns,CHEER_LIST,QUESTION_DIC,BYE_LIST, DEMO_QUESTION_DIC
 from difflib import SequenceMatcher
-import NLP
 
-Rules_dic = DEMO_QUESTION_DIC
 SIMILAR_RATE = 0.5
 
 app = Flask(__name__)
@@ -29,7 +29,6 @@ app = Flask(__name__)
 INTERACTIVE_TEXT_BUTTON_ACTION = "doTextButtonAction"
 INTERACTIVE_IMAGE_BUTTON_ACTION = "doImageButtonAction"
 INTERACTIVE_BUTTON_PARAMETER_KEY = "param_key"
-BOT_HEADER = 'Card Bot Python'
 
 @app.route('/', methods=['POST'])
 def home_post():
@@ -130,68 +129,32 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
 
     """
     
-    if event_message.lower() in CHEER_LIST:
-        return {
-                   'cards': [{'header': {'title': 'City of Edmonton chatbot', 'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png','imageStyle': 'IMAGE'}
-                    }, 
-                       {
-                           'sections': [
-                               {
-                                   'widgets': [
-                                       {'textParagraph': {
-                                               'text': 'Hey! '+user_name+
-                                               ' Thank you for talking to Chatbot about Chatbot :D You can ask me Chatbot type, opportunities, use cases in industry,'+
-                                               ' municipal government, or at the City of Edmonton, my recommendations and the next steps.'
-                                        }},
-                                       {'image': {'imageUrl': 'https://media1.tenor.com/images/9ea72ef078139ced289852e8a4ea0c5c/tenor.gif?itemid=7537923'}}
-                                   ]
-                               }
-                           ]
-                       }
-                   ]
-               } 
+    if event_message.lower() in rules.CHEER_LIST:
+        text = ("Hey! "+user_name+" Thank you for talking to Chatbot about Chatbot :D You can ask me Chatbot type, opportunities, use cases in industry,"
+        "municipal government, or at the City of Edmonton, my recommendations and the next steps.")
+        headertitle = 'City of Edmonton chatbot'
+        headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
+        widgetimage = 'https://media1.tenor.com/images/9ea72ef078139ced289852e8a4ea0c5c/tenor.gif?itemid=7537923'
+        return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)
 
-    elif event_message.lower() in BYE_LIST:
-        return {
-                   'cards': [{'header': {'title': 'City of Edmonton chatbot', 'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png','imageStyle': 'IMAGE'}
-                    }, 
-                       {
-                           'sections': [
-                               {
-                                   'widgets': [
-                                       {
-                                           'textParagraph': {
-                                               'text': 'Bye. Thank you very much for chatting with me. Hope the information provided is helpful. Have a nice day!'
 
-                                           }
-                                       }
-                                   ]
-                               }
-                           ]
-                       }
-                   ]
-               } 
+    elif event_message.lower() in rules.BYE_LIST:
+        text = 'Bye~ Thank you very much for chatting with me. Hope the information provided is helpful. Have a nice day!'
+        headertitle = 'City of Edmonton chatbot'
+        headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
+        widgetimage = 'https://img.buzzfeed.com/buzzfeed-static/static/2017-01/17/16/asset/buzzfeed-prod-fastlane-01/anigif_sub-buzz-20527-1484687195-4.gif'
+        return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)
 
     
     else:
         related_questions_list=search_highest_rate(verb_null_string)
     
         if (len(related_questions_list)==0):
-            return {
-                   'cards': [
-                    {'header': {'title': 'City of Edmonton chatbot', 'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png','imageStyle': 'IMAGE'}
-                    }, 
-                    {'sections': [
-                    {'widgets': [
-                    {'image': {'imageUrl': 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'}},
-                    {'textParagraph': {'text': "Oops! No result found, please search again."}}
-                    ]
-                    }
-                    ]
-                   }
-                   ]
-               }        
-            
+            text = 'Oops! No result found, please search again.'
+            headertitle = 'City of Edmonton chatbot'
+            headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
+            widgetimage = 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'
+            return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)      
             
         else:
             response = dict()
@@ -212,8 +175,6 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
                     'buttons': [{'textButton': {'text': question,'onClick': {'action': {'actionMethodName': INTERACTIVE_TEXT_BUTTON_ACTION,'parameters': [{'key': INTERACTIVE_BUTTON_PARAMETER_KEY,'value': question
                                         }]}}}}]
                 })
-            
-            
             cards.append({ 'sections': [{ 'widgets': widgets }]})
             response['cards'] = cards
             return response
@@ -234,25 +195,14 @@ def respond_to_interactive_card_click(action_name, custom_params):
 
     if custom_params[0]['key'] == INTERACTIVE_BUTTON_PARAMETER_KEY:
         question = custom_params[0]['value']
-        theAnswer = getTheAns(question)
+        theAnswer = rules.getTheAns(question)
         return theAnswer
     else:
-        action_response = 'UPDATE_MESSAGE'
-        return {
-        'actionResponse': {
-            'type': action_response
-        },
-        'cards': [{'sections': 
-        [{'widgets': [
-        {'textParagraph': {'text': 'No result found, please search again.'}},
-        {'image': {'imageUrl': 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'}}
-
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
+        text = 'Oops! No result found, please search again.'
+        headertitle = 'City of Edmonton chatbot'
+        headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
+        widgetimage = 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'
+        return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)   
 
 def similar(stringA, stringB):
     return SequenceMatcher(None, stringA.lower(), stringB.lower()).ratio()
@@ -262,7 +212,7 @@ def search_highest_rate(verb_null_string):
     related_questions_list = []
     higest_rate = 0
     higest_question = None
-    for each_question,each_answer in Rules_dic.items():
+    for each_question,each_answer in rules.QUESTION_DIC.items():
         similar_rate = similar(each_question,verb_null_string)
         if higest_rate == 0:
             higest_rate = similar_rate
@@ -277,7 +227,7 @@ def search_highest_rate(verb_null_string):
 
 
 def search_related_rate(verb_null_string):
-    for each_question,each_answer in Rules_dic.items():
+    for each_question,each_answer in rules.QUESTION_DIC.items():
         if similar(each_question,verb_null_string)>=SIMILAR_RATE:
             related_questions_list.append(each_question)
     return related_questions_list
