@@ -14,12 +14,12 @@ DEMO_QUESTION_DIC = {
     'Municipal government': 400,
     'Findings and recommendations': 500,
     'Benefits': 600,
-    'Use cases for City of Edmonton':700,
+    'Use cases for COE':700,
     'Next steps':800
 
 }       
 
-CHEER_LIST=['hi','hello','how are you?']
+CHEER_LIST=['hi','hello','how are you?','how are you']
 BYE_LIST=['thank you','goodbye','bye']
 
 
@@ -54,9 +54,6 @@ def getTheAns(question):
                      "5.Done\n")
         
         return cardsFactory._respons_text_card(action_response,question,theAnswer)
-
-
-
 
     elif AnsNum == 100:
         theAnswer = "There are three chatbot types: informational, transactional, and advisory. For example, asking for bus schedule is informational. Paying a pet license fee is transactional and usually required identity. Understanding your interests and providing suggestions on the weekend recreational activities is advisory." 
@@ -108,7 +105,7 @@ def getTheAns(question):
         return cardsFactory._respons_text_with_bottom_link_card(action_response,question,theAnswer, buttonText, buttonUrl)
 
     elif AnsNum == 500:
-        theAnswer = ("Start with specific chatbots for example POSSE or Google support to build internal expertise and explore different technologies. Specific chatbot is easy to implement and can provide expected user experiences")
+        theAnswer = ("Start with specific chatbots (eg. POSSE or Google support) to build internal expertise and explore different technologies. Specific chatbot is easy to implement and can provide expected user experiences")
         return cardsFactory._respons_text_card(action_response,question,theAnswer)  
 
 
@@ -133,7 +130,7 @@ def getTheAns(question):
         return cardsFactory._respons_text_card(action_response,question,theAnswer)
 
     elif AnsNum == 700:
-        theAnswer = "There are three types of use cases at City of Edmonton. \n1) generic chatbot: 311, inside information; \n2) specific chatbot: ets bus schedule, Google support, SAP support; \n3) something in between: ets, it, hr, procurement." 
+        theAnswer = "There are three types of use cases at City of Edmonton. \n1) generic chatbot: 311, inside information; \n2) specific chatbot: ETS bus schedule, Google support, SAP support; \n3) something in between: ETS, IT, HR, procurement." 
         return cardsFactory._respons_text_card(action_response,question,theAnswer)  
     elif AnsNum == 800:
         theAnswer = "1) Start to build a chatbot for POSSE, Google and other Chatbot-ready support teams. \n2) Engage business areas to explore the Chatbot opportunities." 
