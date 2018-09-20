@@ -140,8 +140,8 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
                                    'widgets': [
                                        {'textParagraph': {
                                                'text': 'Hey! '+user_name+
-                                               ' Welcome to Chatbot about Chatbot :D You can ask me chatbot type, opportunities, use cases in industry,'+
-                                               ' municipal government, or at the City, my findings and recommendations, next steps.'
+                                               ' Thank you for talking to Chatbot about Chatbot :D You can ask me Chatbot type, opportunities, use cases in industry,'+
+                                               ' municipal government, or at the City of Edmonton, my recommendations and the next steps.'
                                         }},
                                        {'image': {'imageUrl': 'https://media1.tenor.com/images/9ea72ef078139ced289852e8a4ea0c5c/tenor.gif?itemid=7537923'}}
                                    ]

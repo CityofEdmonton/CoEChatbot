@@ -56,15 +56,15 @@ def getTheAns(question):
         return cardsFactory._respons_text_card(action_response,question,theAnswer)
 
     elif AnsNum == 100:
-        theAnswer = "There are three chatbot types: informational, transactional, and advisory. For example, asking for bus schedule is informational. Paying a pet license fee is transactional and usually required identity. Understanding your interests and providing suggestions on the weekend recreational activities is advisory." 
+        theAnswer = "There are three chatbot types: informational, transactional, and advisory. For example, asking for bus schedule is informational. Paying pet license fee is transactional, which usually requirs identity verification. Understanding your interests and providing suggestions on the weekend recreational activities is advisory." 
         return cardsFactory._respons_text_card(action_response,question,theAnswer)  
 
     elif AnsNum == 200:
-        theAnswer = ("Online chat is just another service channel besides the in-person, telephone, text, web, and App channels.\n"
+        theAnswer = ("Online chat is just another service channel besides in-person, telephone, text, web, and App channels.\n"
             "Online chat has existed for many years but is not as popular as today because it requires extra customer service representatives available to answer questions instantly.\n" 
             "The City didn't offer the online chat service to the citizen and employee because it requires significant extra FTEs which the City cannot afford.\n" 
-            "With the new natural language processing and machine learning technologies, an intelligent online chat robot(Chatbot)becomes feasible and industries adopt Chatbot quickly(e.g. Fido, ATB, etc).\n"
-            "The City have the opportunity to offer the online chat service to the citizen and employee with much less required extra FTEs."
+            "With the new natural language processing and machine learning technologies, intelligent online chat robot(Chatbot)becomes feasible and industries adopt Chatbot quickly(e.g. Fido, ATB, etc).\n"
+            "The City of Edmonton has the opportunity to offer the online chat service to the citizen and employee with much less required extra FTEs."
             "Gartner published an articles in August, 2017, stating:\n"
             "By 2020, 25 percentage of customer service and support operations will integrate virtual customer assistant technology across engagement channels.\n"
             "Citizens have a growing expectation of being able to access government services via conversational applications. \n"
@@ -74,7 +74,7 @@ def getTheAns(question):
 
 
     elif AnsNum == 300:
-        theAnswer = ("Online chat is just another service channel besides the in-person, telephone, text, web, and App channels. Typical use cases of Chatbot could be found in the following industries:\n"
+        theAnswer = ("Online chat is just another service channel besides in-person, telephone, text, web, and App channels. Typical use cases of Chatbot could be found in the following industries:\n"
                     "Financial Services\n"
                     "Insurance\n"
                     "HR\n"
