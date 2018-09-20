@@ -183,11 +183,8 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
                            'sections': [
                                {
                                    'widgets': [
-                                       {
-                                           'textParagraph': {
-                                               'text': 'No result found, please search again.'
-                                           }
-                                       }
+                                       {'textParagraph': {'text': "Oops! No result found, please search again."}},
+                                       {'image': {'imageUrl': 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'}}
                                    ]
                                }
                            ]
@@ -203,6 +200,7 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
             header = {
                 'header': {
                 'title': 'Search result for '+event_message,
+                'subtitle': 'City of Edmonton chatbot',
                 'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png',
                 'imageStyle': 'IMAGE'
                 }
@@ -244,16 +242,11 @@ def respond_to_interactive_card_click(action_name, custom_params):
         'actionResponse': {
             'type': action_response
         },
-        'cards': [
-            {
-                'sections': [
-                    {
-                        'widgets': [
-                            {
-                                'textParagraph': {
-                                    'text': 'No result found, please search again.'
-                                }
-                            }
+        'cards': [{'sections': 
+        [{'widgets': [
+        {'textParagraph': {'text': 'No result found, please search again.'}},
+        {'image': {'imageUrl': 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'}}
+
                         ]
                     }
                 ]

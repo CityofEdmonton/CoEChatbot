@@ -3,7 +3,7 @@ def _respons_text_card(type,title,text):
                 'actionResponse': {'type': type},
                 "cards": [
                 {
-                'header': {'title': title,'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png','imageStyle': 'IMAGE'}
+                'header': {'title': title, 'subtitle': 'City of Edmonton chatbot', 'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png','imageStyle': 'IMAGE'}
                 },                      
                 {
                 "sections": [

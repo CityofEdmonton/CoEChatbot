@@ -14,7 +14,7 @@ DEMO_QUESTION_DIC = {
     'Municipal government': 400,
     'Findings and recommendations': 500,
     'Benefits': 600,
-    'CoE use cases':700,
+    'Use cases for City of Edmonton':700,
     'Next steps':800
 
 }       
