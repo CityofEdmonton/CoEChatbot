@@ -132,8 +132,6 @@ def getTheAns(question):
                     "7. Chatbots are omni-channel. Hence people can get support on multiple platforms.\n")
         return cardsFactory._respons_text_card(action_response,question,theAnswer)
 
-
-
     elif AnsNum == 700:
         theAnswer = "There are three types of use cases at City of Edmonton. \n1) generic chatbot: 311, inside information; \n2) specific chatbot: ets bus schedule, Google support, SAP support; \n3) something in between: ets, it, hr, procurement." 
         return cardsFactory._respons_text_card(action_response,question,theAnswer)  

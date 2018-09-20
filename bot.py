@@ -22,7 +22,7 @@ from difflib import SequenceMatcher
 import NLP
 
 Rules_dic = DEMO_QUESTION_DIC
-SIMILAR_RATE = 0.35
+SIMILAR_RATE = 0.5
 
 app = Flask(__name__)
 
@@ -132,19 +132,18 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
     
     if event_message.lower() in CHEER_LIST:
         return {
-                   'cards': [
+                   'cards': [{'header': {'title': 'City of Edmonton chatbot', 'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png','imageStyle': 'IMAGE'}
+                    }, 
                        {
                            'sections': [
                                {
                                    'widgets': [
-                                       {
-                                           'textParagraph': {
+                                       {'textParagraph': {
                                                'text': 'Hey! '+user_name+
                                                ' Welcome to Chatbot about Chatbot :D You can ask me chatbot type, opportunities, use cases in industry,'+
                                                ' municipal government, or at the City, my findings and recommendations, next steps.'
-
-                                           }
-                                       }
+                                        }},
+                                       {'image': {'imageUrl': 'https://media1.tenor.com/images/9ea72ef078139ced289852e8a4ea0c5c/tenor.gif?itemid=7537923'}}
                                    ]
                                }
                            ]
@@ -154,7 +153,8 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
 
     elif event_message.lower() in BYE_LIST:
         return {
-                   'cards': [
+                   'cards': [{'header': {'title': 'City of Edmonton chatbot', 'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png','imageStyle': 'IMAGE'}
+                    }, 
                        {
                            'sections': [
                                {
@@ -179,16 +179,16 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
         if (len(related_questions_list)==0):
             return {
                    'cards': [
-                       {
-                           'sections': [
-                               {
-                                   'widgets': [
-                                       {'textParagraph': {'text': "Oops! No result found, please search again."}},
-                                       {'image': {'imageUrl': 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'}}
-                                   ]
-                               }
-                           ]
-                       }
+                    {'header': {'title': 'City of Edmonton chatbot', 'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png','imageStyle': 'IMAGE'}
+                    }, 
+                    {'sections': [
+                    {'widgets': [
+                    {'image': {'imageUrl': 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'}},
+                    {'textParagraph': {'text': "Oops! No result found, please search again."}}
+                    ]
+                    }
+                    ]
+                   }
                    ]
                }        
             
