@@ -22,7 +22,7 @@ from httplib2 import Http
 from oauth2client.service_account import ServiceAccountCredentials
 from difflib import SequenceMatcher
 
-SIMILAR_RATE = 0.6
+SIMILAR_RATE = 0.5
 
 app = Flask(__name__)
 
