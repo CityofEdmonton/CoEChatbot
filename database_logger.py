@@ -12,7 +12,6 @@ CLOUDSQL_CONNECTION_NAME = os.environ.get('CLOUDSQL_CONNECTION_NAME')
 CLOUDSQL_USER = os.environ.get('CLOUDSQL_USER')
 CLOUDSQL_PASSWORD = os.environ.get('CLOUDSQL_PASSWORD')
 
-
 def connect_to_cloudsql():
     # When deployed to App Engine, the `SERVER_SOFTWARE` environment variable
     # will be set to 'Google App Engine/version'.
@@ -42,4 +41,15 @@ def logging_to_database(user,question,answer):
     question=str(question)
     answer = str(answer)
     cursor.execute("INSERT INTO chat_history VALUES (%s, %s, %s, %s, %s)", [timestamp, user, question, answer, "Null"])
+    db.commit()
+
+# Need to find a way to update
+def update_selected_answer(user, answer_selected, original_question):
+    db = connect_to_cloudsql()
+    cursor = db.cursor()
+    cursor.execute("USE history")
+    user=str(user)
+    answer_selected = str(answer_selected)
+    print("TESTING ", user,original_question, answer_selected)
+    cursor.execute("UPDATE chat_history SET Answer_selected = %s WHERE User = %s and Question = %s", [answer_selected, user, original_question])
     db.commit()

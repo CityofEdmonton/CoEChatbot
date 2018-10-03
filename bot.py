@@ -34,6 +34,7 @@ INTERACTIVE_TEXT_BUTTON_ACTION = "doTextButtonAction"
 INTERACTIVE_IMAGE_BUTTON_ACTION = "doImageButtonAction"
 INTERACTIVE_BUTTON_PARAMETER_KEY = "param_key"
 
+
 @app.route('/', methods=['POST'])
 def home_post():
     """Respond to POST requests to this endpoint.
@@ -42,7 +43,6 @@ def home_post():
     requests.
     """
     event_data = request.get_json()
-
     resp = None
 
     # If the bot is removed from the space, it doesn't post a message
@@ -65,10 +65,12 @@ def home_post():
         verb_null_string,parsed_string = NLP.main(event_data['message']['text'])
         resp = create_card_response(verb_null_string,parsed_string,event_data['message']['text'],event_data['user']['displayName'])     
 
+
     elif event_data['type'] == 'CARD_CLICKED':
         action_name = event_data['action']['actionMethodName']
         parameters = event_data['action']['parameters']
-        resp = respond_to_interactive_card_click(action_name, parameters)
+        user = event_data['user']['displayName']
+        resp = respond_to_interactive_card_click(action_name, parameters, user)
 
     space_name = event_data['space']['name']
 
@@ -187,11 +189,12 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
             cards.append({ 'sections': [{ 'widgets': widgets }]})
             response['cards'] = cards
             database_logger.logging_to_database(user_name, event_message,related_questions_list)
+            database_logger.ORIGINAL_QUESTION = event_message
             return response
         
 
 
-def respond_to_interactive_card_click(action_name, custom_params):
+def respond_to_interactive_card_click(action_name, custom_params,user):
     """Creates a response for when the user clicks on an interactive card.
 
     See the guide for creating interactive cards
@@ -205,6 +208,7 @@ def respond_to_interactive_card_click(action_name, custom_params):
 
     if custom_params[0]['key'] == INTERACTIVE_BUTTON_PARAMETER_KEY:
         question = custom_params[0]['value']
+        #database_logger.update_selected_answer(user, question, database_logger.ORIGINAL_QUESTION)
         theAnswer = rules.getTheAns(question)
         return theAnswer 
 
