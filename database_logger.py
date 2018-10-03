@@ -3,6 +3,8 @@
 import os
 import MySQLdb
 import datetime
+import pytz
+
 
 
 # These environment variables are configured in app.yaml.
@@ -34,10 +36,10 @@ def logging_to_database(user,question,answer):
     db = connect_to_cloudsql()
     cursor = db.cursor()
     cursor.execute("USE history")
-    timestamp = datetime.datetime.now().isoformat()
+    tz = pytz.timezone('America/Edmonton')
+    timestamp = datetime.datetime.now(tz).isoformat()
     user=str(user)
     question=str(question)
     answer = str(answer)
-    print("inserting: ",timestamp, user, question, answer, "Null")
     cursor.execute("INSERT INTO chat_history VALUES (%s, %s, %s, %s, %s)", [timestamp, user, question, answer, "Null"])
     db.commit()

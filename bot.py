@@ -65,7 +65,6 @@ def home_post():
         verb_null_string,parsed_string = NLP.main(event_data['message']['text'])
         resp = create_card_response(verb_null_string,parsed_string,event_data['message']['text'],event_data['user']['displayName'])     
 
-
     elif event_data['type'] == 'CARD_CLICKED':
         action_name = event_data['action']['actionMethodName']
         parameters = event_data['action']['parameters']
