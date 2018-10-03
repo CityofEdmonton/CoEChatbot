@@ -116,3 +116,5 @@ service-account.json
 **/*.iml
 service-acct.json
 app.yaml
+*.yaml
+app.yaml

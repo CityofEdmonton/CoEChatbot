@@ -11,11 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import datetime
 import logging
 import rules
 import NLP
 import cardsFactory
+import database_logger
+import webapp2
+import os
+import MySQLdb
 from apiclient.discovery import build, build_from_document
 from flask import Flask, render_template, request, json, make_response
 from httplib2 import Http
@@ -37,13 +41,14 @@ def home_post():
     All requests sent to this endpoint from Hangouts Chat are POST
     requests.
     """
-
     event_data = request.get_json()
 
     resp = None
 
     # If the bot is removed from the space, it doesn't post a message
     # to the space. Instead, log a message showing that the bot was removed.
+
+
     if event_data['type'] == 'REMOVED_FROM_SPACE':
         logging.info('Bot removed from  %s' % event_data['space']['name'])
         return 'OK'
@@ -135,6 +140,7 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
             headertitle = 'City of Edmonton chatbot'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://media1.tenor.com/images/9ea72ef078139ced289852e8a4ea0c5c/tenor.gif?itemid=7537923'
+            database_logger.logging_to_database(user_name, event_message,"CHEER")
             return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)
 
     for word in rules.BYE_LIST:
@@ -143,6 +149,7 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
             headertitle = 'City of Edmonton chatbot'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://img.buzzfeed.com/buzzfeed-static/static/2017-01/17/16/asset/buzzfeed-prod-fastlane-01/anigif_sub-buzz-20527-1484687195-4.gif'
+            database_logger.logging_to_database(user_name, event_message,"BYE")
             return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)
 
     
@@ -150,13 +157,14 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
 
         related_questions_list=[]
         related_questions_list=search_related_rate(verb_null_string)
-    
+
         if (len(related_questions_list)==0):
             text = 'I am afraid I am not able to understand and answer your question. I am still learning. Currently, I am only trained to answer questions about Chatbot type, opportunities, use cases in industry,\
             municipal government, or at the City of Edmonton, my recommendations and the next steps.'
             headertitle = 'City of Edmonton chatbot'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'
+            database_logger.logging_to_database(user_name, event_message,"NOT FOUND")
             return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)      
             
         else:
@@ -179,7 +187,7 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
                 })
             cards.append({ 'sections': [{ 'widgets': widgets }]})
             response['cards'] = cards
-
+            database_logger.logging_to_database(user_name, event_message,related_questions_list)
             return response
         
 
@@ -199,35 +207,10 @@ def respond_to_interactive_card_click(action_name, custom_params):
     if custom_params[0]['key'] == INTERACTIVE_BUTTON_PARAMETER_KEY:
         question = custom_params[0]['value']
         theAnswer = rules.getTheAns(question)
-        return theAnswer
-    else:
-        text = 'I am afraid I am not able to understand and answer your question. I am still learning. Currently, I am only trained to answer questions about Chatbot type, opportunities, use cases in industry,\
-        municipal government, or at the City of Edmonton, my recommendations and the next steps.'
-        headertitle = 'City of Edmonton chatbot'
-        headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
-        widgetimage = 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'
-        return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)   
+        return theAnswer 
 
 def similar(stringA, stringB):
     return SequenceMatcher(None, stringA.lower(), stringB.lower()).ratio()
-
-
-def search_highest_rate(verb_null_string):
-    related_questions_list = []
-    higest_rate = 0
-    higest_question = None
-    for each_question,each_answer in rules.QUESTION_DIC.items():
-        similar_rate = similar(verb_null_string,each_question)
-        if higest_rate == 0:
-            higest_rate = similar_rate
-            higest_question = each_question
-        else:
-            if similar_rate>higest_rate:
-                higest_rate = similar_rate
-                higest_question = each_question
-    if higest_rate > 0.35:
-        related_questions_list.append(higest_question)
-    return related_questions_list
 
 
 def search_related_rate(verb_null_string):
