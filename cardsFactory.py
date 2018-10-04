@@ -70,7 +70,22 @@ def _text_card_with_image(headertitle, headerimage,text, widgetimage):
             }
             ]
             } 
-
+def _text_card(title,text):
+            return {
+                "cards": [
+                {
+                'header': {'title': title, 'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png','imageStyle': 'IMAGE'}
+                },                      
+                {
+                "sections": [
+                {
+                "widgets": [
+                {"textParagraph": {"text": text}}
+                ]
+                }]
+                }
+                ]
+                } 
 
 def create_cards(cards_order):
     INTERACTIVE_TEXT_BUTTON_ACTION = "doTextButtonAction"

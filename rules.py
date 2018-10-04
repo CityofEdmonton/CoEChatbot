@@ -2,11 +2,11 @@ import cardsFactory
 # Different dics for different usage 
 DEMO_QUESTION_DIC = {
     "Chatbot type": 100, 
-    'Opportunities': 200,
+    'Opportunities for COE': 200,
     'Use cases in industry': 300,
-    'Municipal government': 400,
-    'Findings and recommendations': 500,
-    'Benefits': 600,
+    'Use cases in municipal government': 400,
+    'Findings and recommendations for COE': 500,
+    'Benefits for COE': 600,
     'Use cases for COE':700,
     'Next steps':800
 }       

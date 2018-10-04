@@ -14,7 +14,7 @@
 import datetime
 import logging
 import rules
-import NLP
+import nlp
 import cardsFactory
 import database_logger
 import os
@@ -61,7 +61,7 @@ def home_post():
             .format(event_data['user']['displayName'])) }
 
     elif event_data['type'] == 'MESSAGE':
-        verb_null_string,parsed_string = NLP.main(event_data['message']['text'])
+        verb_null_string,parsed_string = nlp.main(event_data['message']['text'])
         resp = create_card_response(verb_null_string,parsed_string,event_data['message']['text'],event_data['user']['displayName'])     
 
 
@@ -100,11 +100,6 @@ def home_get():
 
 def send_async_response(response, space_name, thread_id):
     """Sends a response back to the Hangouts Chat room asynchronously.
-
-    Args:
-      response: the response payload
-      spaceName: The URL of the Hangouts Chat room
-
     """
 
     # The following two lines of code update the thread that raised the event.
@@ -125,20 +120,21 @@ def send_async_response(response, space_name, thread_id):
 
 def create_card_response(verb_null_string,parsed_string,event_message,user_name):
     """Creates a card response based on the message sent in Hangouts Chat.
-
-    See the reference for JSON keys and format for cards:
-    https://developers.google.com/hangouts/chat/reference/message-formats/cards
-
-    Args:
-        eventMessage: the user's message to the bot
-
     """
     question_from_user = event_message.encode('utf-8')
     parsed_key_words = verb_null_string.encode('utf-8')
+
+    if event_message == "help":
+            text = ("At this moment, you could ask me about:\n1. Chatbot type\n2. Use cases in industry\n"
+            "3. Use cases in municipal government\n4. Opportunities for COE\n5. Use cases for COE\n6. Benefits for COE\n7. Recommendations for COE\n8. Next steps")
+            headertitle = 'City of Edmonton chatbot'
+            database_logger.logging_to_database(user_name, question_from_user,"HELP",parsed_key_words)
+            return cardsFactory._text_card(headertitle, text)
+
+
     for word in rules.CHEER_LIST:
         if similar(event_message, word)>=SIMILAR_RATE:
-            text = ("Hey! "+user_name+" Thank you for talking to Chatbot about Chatbot :D You can ask me Chatbot type, opportunities, use cases in industry,"
-            " municipal government, or at the City of Edmonton, my recommendations and the next steps.")
+            text = ("Hey! "+user_name+" Thank you for talking to Chatbot about Chatbot :D Please type 'help' to get the list of questions I could answer for now!")
             headertitle = 'City of Edmonton chatbot'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://media1.tenor.com/images/9ea72ef078139ced289852e8a4ea0c5c/tenor.gif?itemid=7537923'
@@ -161,8 +157,7 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
         related_questions_list=search_related_rate(parsed_key_words)
 
         if (len(related_questions_list)==0):
-            text = 'I am afraid I am not able to understand and answer your question. I am still learning. Currently, I am only trained to answer questions about Chatbot type, opportunities, use cases in industry,\
-            municipal government, or at the City of Edmonton, my recommendations and the next steps.'
+            text = "I am afraid I am not able to understand and answer your question. I am still learning. Currently, Please type 'help' to get the list of questions I could answer for now!"
             headertitle = 'City of Edmonton chatbot'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'
@@ -196,16 +191,7 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
 
 def respond_to_interactive_card_click(action_name, custom_params,user):
     """Creates a response for when the user clicks on an interactive card.
-
-    See the guide for creating interactive cards
-    https://developers.google.com/hangouts/chat/how-tos/cards-onclick
-
-    Args:
-        action_name: the name of the custom action defined in the original bot response
-        custom_params: the parameters defined in the original bot response
-
     """
-
     if custom_params[0]['key'] == INTERACTIVE_BUTTON_PARAMETER_KEY:
         question = custom_params[0]['value']
         theAnswer = rules.getTheAns(question)
