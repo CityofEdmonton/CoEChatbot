@@ -13,13 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import argparse
 import sys
 import textwrap
-
 import googleapiclient.discovery
-
+#from google.cloud import language_v1beta2
+#from google.cloud.language_v1beta2 import enums
+#from google.cloud.language_v1beta2 import types
+#import six
 
 def dependents(tokens, head_index):
     """Returns an ordered list of the token indices of the dependents for
@@ -111,17 +112,17 @@ def find_triples(tokens,
 def find_verb_noun(tokens):
     verb_list = []
     noun_list = []
-    verb_null_string = ""
+    verb_noun_string = ""
     for head, token in enumerate(tokens):
         if token['partOfSpeech']['tag'] == 'VERB' and token['dependencyEdge']['label'] != 'NSUBJ':
             verb_list.append(token['text']['content'])
-            verb_null_string+= " "+token['text']['content']
+            verb_noun_string+= " "+token['text']['content']
 
         if token['partOfSpeech']['tag'] == 'NOUN':
             noun_list.append(token['text']['content'])
-            verb_null_string+= " "+token['text']['content']
+            verb_noun_string+= " "+token['text']['content']
 
-    return verb_list, noun_list,verb_null_string.strip()
+    return verb_list, noun_list,verb_noun_string.strip()
 
 
 def show_triple(tokens, text, triple):
@@ -143,6 +144,31 @@ def show_triple(tokens, text, triple):
     parsed_string = left[0]+' '+right[0]
     return parsed_string
 
+def entities_text(text):
+    """Detects entities in the text."""
+    client = language_v1beta2.LanguageServiceClient()
+
+    if isinstance(text, six.binary_type):
+        text = text.decode('utf-8')
+
+    # Instantiates a plain text document.
+    document = types.Document(
+        content=text,
+        type=enums.Document.Type.PLAIN_TEXT)
+
+    # Detects entities in the document. You can also analyze HTML with:
+    #   document.type == enums.Document.Type.HTML
+    entities = client.analyze_entities(document).entities
+
+    # entity types from enums.Entity.Type
+    entity_type = ('UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION',
+                   'EVENT', 'WORK_OF_ART', 'CONSUMER_GOOD', 'OTHER')
+    entity_string = ''
+    entity_list= []
+    for entity in entities:
+        entity_string += " "+entity.name.decode('utf-8')
+        entity_list.append(entity.name.decode('utf-8'))
+    return entity_string, entity_list
 
 def main(text):
     # Extracts subject-verb-object triples from the given text file,
@@ -150,19 +176,8 @@ def main(text):
     parsed_string = None
     analysis = analyze_syntax(text)
     tokens = analysis.get('tokens', [])
-    verb_list, noun_list,verb_null_string = find_verb_noun(tokens)
+    verb_list, noun_list,verb_noun_string = find_verb_noun(tokens)
     for triple in find_triples(tokens):
         parsed_string = show_triple(tokens, text, triple)
-
-    return verb_null_string,parsed_string
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument(
-        'text_file',
-        help='A file containing the document to process.  '
-        'Should be encoded in UTF8 or ASCII')
-    args = parser.parse_args()
-    main(args.text_file)
+    #entity_string, entity_list = entities_text(text)
+    return verb_noun_string,parsed_string, None, []

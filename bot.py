@@ -61,8 +61,8 @@ def home_post():
             .format(event_data['user']['displayName'])) }
 
     elif event_data['type'] == 'MESSAGE':
-        verb_null_string,parsed_string = nlp.main(event_data['message']['text'])
-        resp = create_card_response(verb_null_string,parsed_string,event_data['message']['text'],event_data['user']['displayName'])     
+        verb_noun_string,parsed_string, entity_string, entity_list = nlp.main(event_data['message']['text'])
+        resp = create_card_response(verb_noun_string,entity_string,entity_list,event_data['message']['text'],event_data['user']['displayName'])     
 
 
     elif event_data['type'] == 'CARD_CLICKED':
@@ -118,11 +118,14 @@ def send_async_response(response, space_name, thread_id):
         parent=space_name,
         body=response).execute()
 
-def create_card_response(verb_null_string,parsed_string,event_message,user_name):
+def create_card_response(verb_noun_string,entity_string,entity_list,event_message,user_name):
     """Creates a card response based on the message sent in Hangouts Chat.
     """
     question_from_user = event_message.encode('utf-8')
-    parsed_key_words = verb_null_string.encode('utf-8')
+    if len(entity_list) != 0:
+        parsed_key_words = entity_string.encode('utf-8')
+    else:
+         parsed_key_words = verb_noun_string.encode('utf-8')
 
     if event_message == "help":
             text = ("At this moment, you could ask me about:\n1. Chatbot type\n2. Use cases in industry\n"
@@ -202,9 +205,9 @@ def similar(stringA, stringB):
     return SequenceMatcher(None, stringA.lower(), stringB.lower()).ratio()
 
 
-def search_related_rate(verb_null_string):
+def search_related_rate(verb_noun_string):
     related_questions_list = []
     for each_question,each_answer in rules.QUESTION_DIC.items():
-        if similar(verb_null_string,each_question)>=SIMILAR_RATE:
+        if similar(verb_noun_string,each_question)>=SIMILAR_RATE:
             related_questions_list.append(each_question)
     return related_questions_list
