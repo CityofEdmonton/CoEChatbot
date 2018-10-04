@@ -134,7 +134,7 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
 
     for word in rules.CHEER_LIST:
         if similar(event_message, word)>=SIMILAR_RATE:
-            text = ("Hey! "+user_name+" Thank you for talking to Chatbot about Chatbot :D Please type 'help' to get the list of questions I could answer for now!")
+            text = ("Hey! "+user_name+" Thank you for talking to Chatbot about Chatbot :D Please type <b>'help'</b> to get the list of questions I could answer for now!")
             headertitle = 'City of Edmonton chatbot'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://media1.tenor.com/images/9ea72ef078139ced289852e8a4ea0c5c/tenor.gif?itemid=7537923'
@@ -157,7 +157,7 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
         related_questions_list=search_related_rate(parsed_key_words)
 
         if (len(related_questions_list)==0):
-            text = "I am afraid I am not able to understand and answer your question. I am still learning. Currently, Please type 'help' to get the list of questions I could answer for now!"
+            text = "I am afraid I am not able to understand and answer your question. I am still learning. Currently, please type <b>'help'</b> to get the list of questions I could answer for now!"
             headertitle = 'City of Edmonton chatbot'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'

@@ -5,7 +5,7 @@ DEMO_QUESTION_DIC = {
     'Opportunities for COE': 200,
     'Use cases in industry': 300,
     'Use cases in municipal government': 400,
-    'Findings and recommendations for COE': 500,
+    'Recommendations for COE': 500,
     'Benefits for COE': 600,
     'Use cases for COE':700,
     'Next steps':800
