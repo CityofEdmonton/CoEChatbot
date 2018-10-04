@@ -31,7 +31,7 @@ def connect_to_cloudsql():
     return db
 
 
-def logging_to_database(user,question,answer):
+def logging_to_database(user,question,answer,parsed_key_words):
     db = connect_to_cloudsql()
     cursor = db.cursor()
     cursor.execute("USE history")
@@ -40,16 +40,15 @@ def logging_to_database(user,question,answer):
     user=str(user)
     question=str(question)
     answer = str(answer)
-    cursor.execute("INSERT INTO chat_history VALUES (%s, %s, %s, %s, %s)", [timestamp, user, question, answer, "Null"])
+    cursor.execute("INSERT INTO chat_history VALUES (%s, %s, %s, %s, %s, %s)", [timestamp, user, question, answer, "Null", parsed_key_words])
     db.commit()
 
-# Need to find a way to update
-def update_selected_answer(user, answer_selected, original_question):
+
+def update_selected_answer(user, answer_selected):
     db = connect_to_cloudsql()
     cursor = db.cursor()
-    cursor.execute("USE history")
     user=str(user)
     answer_selected = str(answer_selected)
-    print("TESTING ", user,original_question, answer_selected)
-    cursor.execute("UPDATE chat_history SET Answer_selected = %s WHERE User = %s and Question = %s", [answer_selected, user, original_question])
+    cursor.execute("SET SQL_SAFE_UPDATES = 0")
+    cursor.execute("Update history.chat_history Set Answer_selected = %s where Timestamp = (SELECT Timestamp FROM (select * from history.chat_history) AS subtable where User = %s ORDER BY Timestamp DESC LIMIT 1) and User =%s", [answer_selected, user,  user])
     db.commit()

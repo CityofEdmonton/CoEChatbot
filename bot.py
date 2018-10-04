@@ -17,7 +17,6 @@ import rules
 import NLP
 import cardsFactory
 import database_logger
-import webapp2
 import os
 import MySQLdb
 from apiclient.discovery import build, build_from_document
@@ -134,6 +133,8 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
         eventMessage: the user's message to the bot
 
     """
+    question_from_user = event_message.encode('utf-8')
+    parsed_key_words = verb_null_string.encode('utf-8')
     for word in rules.CHEER_LIST:
         if similar(event_message, word)>=SIMILAR_RATE:
             text = ("Hey! "+user_name+" Thank you for talking to Chatbot about Chatbot :D You can ask me Chatbot type, opportunities, use cases in industry,"
@@ -141,7 +142,7 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
             headertitle = 'City of Edmonton chatbot'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://media1.tenor.com/images/9ea72ef078139ced289852e8a4ea0c5c/tenor.gif?itemid=7537923'
-            database_logger.logging_to_database(user_name, event_message,"CHEER")
+            database_logger.logging_to_database(user_name, question_from_user,"CHEER",parsed_key_words)
             return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)
 
     for word in rules.BYE_LIST:
@@ -150,14 +151,14 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
             headertitle = 'City of Edmonton chatbot'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://img.buzzfeed.com/buzzfeed-static/static/2017-01/17/16/asset/buzzfeed-prod-fastlane-01/anigif_sub-buzz-20527-1484687195-4.gif'
-            database_logger.logging_to_database(user_name, event_message,"BYE")
+            database_logger.logging_to_database(user_name, question_from_user,"BYE",parsed_key_words)
             return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)
 
     
     else:
 
         related_questions_list=[]
-        related_questions_list=search_related_rate(verb_null_string)
+        related_questions_list=search_related_rate(parsed_key_words)
 
         if (len(related_questions_list)==0):
             text = 'I am afraid I am not able to understand and answer your question. I am still learning. Currently, I am only trained to answer questions about Chatbot type, opportunities, use cases in industry,\
@@ -165,7 +166,7 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
             headertitle = 'City of Edmonton chatbot'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'
-            database_logger.logging_to_database(user_name, event_message,"NOT FOUND")
+            database_logger.logging_to_database(user_name, question_from_user,"NOT FOUND",parsed_key_words)
             return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)      
             
         else:
@@ -188,8 +189,7 @@ def create_card_response(verb_null_string,parsed_string,event_message,user_name)
                 })
             cards.append({ 'sections': [{ 'widgets': widgets }]})
             response['cards'] = cards
-            database_logger.logging_to_database(user_name, event_message,related_questions_list)
-            database_logger.ORIGINAL_QUESTION = event_message
+            database_logger.logging_to_database(user_name, question_from_user,related_questions_list,parsed_key_words)
             return response
         
 
@@ -208,8 +208,8 @@ def respond_to_interactive_card_click(action_name, custom_params,user):
 
     if custom_params[0]['key'] == INTERACTIVE_BUTTON_PARAMETER_KEY:
         question = custom_params[0]['value']
-        #database_logger.update_selected_answer(user, question, database_logger.ORIGINAL_QUESTION)
         theAnswer = rules.getTheAns(question)
+        database_logger.update_selected_answer(user, question)
         return theAnswer 
 
 def similar(stringA, stringB):
