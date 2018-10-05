@@ -12,7 +12,7 @@ DEMO_QUESTION_DIC = {
 }       
 # Global varables for the Chatbot 
 QUESTION_DIC = DEMO_QUESTION_DIC
-CHEER_LIST=['hi','hello','how are you?','how are you']
+CHEER_LIST=['hi','hello','how are you?','how are you','Hi JacksonBot']
 BYE_LIST=['thank you','goodbye','bye']
 # Global varables for the Chatbot 
 

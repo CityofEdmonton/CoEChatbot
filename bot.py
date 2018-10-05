@@ -127,7 +127,7 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
     else:
          parsed_key_words = verb_noun_string.encode('utf-8')
 
-    if event_message == "help":
+    if event_message.lower() == "help":
             text = ("At this moment, you could ask me about:\n1. Chatbot type\n2. Use cases in industry\n"
             "3. Use cases in municipal government\n4. Opportunities for COE\n5. Use cases for COE\n6. Benefits for COE\n7. Recommendations for COE\n8. Next steps")
             headertitle = 'City of Edmonton chatbot'

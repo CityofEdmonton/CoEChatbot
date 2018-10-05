@@ -110,11 +110,12 @@ def find_triples(tokens,
 
 
 def find_verb_noun(tokens):
+    to_be_list = ['be', 'do']
     verb_list = []
     noun_list = []
     verb_noun_string = ""
     for head, token in enumerate(tokens):
-        if token['partOfSpeech']['tag'] == 'VERB' and token['dependencyEdge']['label'] != 'NSUBJ':
+        if token['partOfSpeech']['tag'] == 'VERB' and token['dependencyEdge']['label'] != 'NSUBJ' and token['lemma'] not in to_be_list:
             verb_list.append(token['text']['content'])
             verb_noun_string+= " "+token['text']['content']
 
