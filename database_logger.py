@@ -31,7 +31,7 @@ def connect_to_cloudsql():
     return db
 
 
-def logging_to_database(user,question,answer,parsed_key_words):
+def logging_to_database(user,question,answer,parsed_key_words, search_used, group):
     db = connect_to_cloudsql()
     cursor = db.cursor()
     cursor.execute("USE history")
@@ -40,7 +40,7 @@ def logging_to_database(user,question,answer,parsed_key_words):
     user=str(user)
     question=str(question)
     answer = str(answer)
-    cursor.execute("INSERT INTO chat_history VALUES (%s, %s, %s, %s, %s, %s)", [timestamp, user, question, answer, "Null", parsed_key_words])
+    cursor.execute("INSERT INTO chat_history VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", [timestamp, user, question, answer, "Null", parsed_key_words, search_used, group])
     db.commit()
 
 

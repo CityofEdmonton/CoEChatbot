@@ -13,10 +13,11 @@
 # limitations under the License.
 import datetime
 import logging
-import rules
+import library
 import nlp
 import cardsFactory
 import database_logger
+import search
 import os
 import MySQLdb
 from apiclient.discovery import build, build_from_document
@@ -46,8 +47,6 @@ def home_post():
 
     # If the bot is removed from the space, it doesn't post a message
     # to the space. Instead, log a message showing that the bot was removed.
-
-
     if event_data['type'] == 'REMOVED_FROM_SPACE':
         logging.info('Bot removed from  %s' % event_data['space']['name'])
         return 'OK'
@@ -89,12 +88,6 @@ def home_post():
 
 @app.route('/', methods=['GET'])
 def home_get():
-    """Respond to GET requests to this endpoint.
-
-    This function responds to requests with a simple HTML landing page for this
-    App Engine instance.
-    """
-
     return render_template('home.html')
 
 
@@ -131,40 +124,40 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
             text = ("At this moment, you could ask me about:\n1. Chatbot type\n2. Use cases in industry\n"
             "3. Use cases in municipal government\n4. Opportunities for COE\n5. Use cases for COE\n6. Benefits for COE\n7. Recommendations for COE\n8. Next steps")
             headertitle = 'City of Edmonton chatbot'
-            database_logger.logging_to_database(user_name, question_from_user,"HELP",parsed_key_words)
+            database_logger.logging_to_database(user_name, question_from_user,"HELP",parsed_key_words, "Null", "Null")
             return cardsFactory._text_card(headertitle, text)
 
 
-    for word in rules.CHEER_LIST:
-        if similar(event_message, word)>=SIMILAR_RATE:
+    for word in library.CHEER_LIST:
+        if search.similar(event_message, word)>=search.SIMILAR_RATE:
             text = ("Hey! "+user_name+" Thank you for talking to Chatbot about Chatbot :D Please type <b>'help'</b> to get the list of questions I could answer for now!")
             headertitle = 'City of Edmonton chatbot'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://media1.tenor.com/images/9ea72ef078139ced289852e8a4ea0c5c/tenor.gif?itemid=7537923'
-            database_logger.logging_to_database(user_name, question_from_user,"CHEER",parsed_key_words)
+            database_logger.logging_to_database(user_name, question_from_user,"CHEER",parsed_key_words, "Null", "Null")
             return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)
 
-    for word in rules.BYE_LIST:
-        if similar(event_message, word)>=SIMILAR_RATE:
+    for word in library.BYE_LIST:
+        if search.similar(event_message, word)>=search.SIMILAR_RATE:
             text = 'Bye~ Thank you very much for chatting with me. Hope the information provided is helpful. Or, you can leave your feedback here! Have a nice day!'
             headertitle = 'City of Edmonton chatbot'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://img.buzzfeed.com/buzzfeed-static/static/2017-01/17/16/asset/buzzfeed-prod-fastlane-01/anigif_sub-buzz-20527-1484687195-4.gif'
-            database_logger.logging_to_database(user_name, question_from_user,"BYE",parsed_key_words)
+            database_logger.logging_to_database(user_name, question_from_user,"BYE",parsed_key_words, "Null", "Null")
             return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)
 
     
     else:
 
         related_questions_list=[]
-        related_questions_list=search_related_rate(parsed_key_words)
+        related_questions_list, search_used, group=search.main(parsed_key_words, question_from_user)
 
         if (len(related_questions_list)==0):
             text = "I am afraid I am not able to understand and answer your question. I am still learning. Currently, please type <b>'help'</b> to get the list of questions I could answer for now!"
             headertitle = 'City of Edmonton chatbot'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'
-            database_logger.logging_to_database(user_name, question_from_user,"NOT FOUND",parsed_key_words)
+            database_logger.logging_to_database(user_name, question_from_user,"NOT FOUND",parsed_key_words, "Null", "Null")
             return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)      
             
         else:
@@ -181,13 +174,15 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
             }
             cards.append(header)
             
-            for question in related_questions_list:
+            for each_list in related_questions_list:
+                question = each_list[0]
+                index = each_list[1]
                 widgets.append(
-                {'buttons': [{'textButton': {'text': question,'onClick': {'action': {'actionMethodName': INTERACTIVE_TEXT_BUTTON_ACTION,'parameters': [{'key': INTERACTIVE_BUTTON_PARAMETER_KEY,'value': question}]}}}}]
+                {'buttons': [{'textButton': {'text': question,'onClick': {'action': {'actionMethodName': INTERACTIVE_TEXT_BUTTON_ACTION,'parameters': [{'key': INTERACTIVE_BUTTON_PARAMETER_KEY,'value': index}]}}}}]
                 })
             cards.append({ 'sections': [{ 'widgets': widgets }]})
             response['cards'] = cards
-            database_logger.logging_to_database(user_name, question_from_user,related_questions_list,parsed_key_words)
+            database_logger.logging_to_database(user_name, question_from_user,related_questions_list,parsed_key_words, search_used, group)
             return response
         
 
@@ -196,18 +191,7 @@ def respond_to_interactive_card_click(action_name, custom_params,user):
     """Creates a response for when the user clicks on an interactive card.
     """
     if custom_params[0]['key'] == INTERACTIVE_BUTTON_PARAMETER_KEY:
-        question = custom_params[0]['value']
-        theAnswer = rules.getTheAns(question)
-        database_logger.update_selected_answer(user, question)
+        index = custom_params[0]['value']
+        theAnswer = search.getTheAns(index)
+        database_logger.update_selected_answer(user, index)
         return theAnswer 
-
-def similar(stringA, stringB):
-    return SequenceMatcher(None, stringA.lower(), stringB.lower()).ratio()
-
-
-def search_related_rate(verb_noun_string):
-    related_questions_list = []
-    for each_question,each_answer in rules.QUESTION_DIC.items():
-        if similar(verb_noun_string,each_question)>=SIMILAR_RATE:
-            related_questions_list.append(each_question)
-    return related_questions_list
