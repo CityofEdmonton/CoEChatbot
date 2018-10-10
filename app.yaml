@@ -5,3 +5,16 @@ threadsafe: true
 handlers:
 - url: /.*
   script: bot.app
+
+libraries:
+- name: MySQLdb
+  version: "latest"
+- name: ssl
+  version: "latest"
+
+# [START env_variables]
+env_variables:
+    CLOUDSQL_CONNECTION_NAME: chatbot-216118:us-west1:chatbothistorydb2
+    CLOUDSQL_USER: root
+    CLOUDSQL_PASSWORD: coechatbot
+# [END env_variables]

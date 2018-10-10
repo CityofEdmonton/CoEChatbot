@@ -87,4 +87,5 @@ QUESTION_DIC = {
 "how many centimeters in an inch": [81, "answer"],
 "why is the sky blue": [82, "answer"],
 "how to write a cover letter": [83, "answer", "link"],
+"what is the meaning of life": [84, "drink tea hahahah", "link"],
 }
