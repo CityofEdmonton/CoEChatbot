@@ -26,7 +26,6 @@ from httplib2 import Http
 from oauth2client.service_account import ServiceAccountCredentials
 from difflib import SequenceMatcher
 
-SIMILAR_RATE = 0.5
 
 app = Flask(__name__)
 
@@ -70,10 +69,13 @@ def home_post():
 
     elif event_data['type'] == 'MESSAGE':
         old_question = database_logger.check_log_question_tem(event_data['user']['displayName'])
-        print("old_question", old_question)
-        verb_noun_string,parsed_string, entity_string, entity_list = nlp.main(event_data['message']['text'])
-        resp = create_card_response(verb_noun_string,entity_string,entity_list,event_data['message']['text'],event_data['user']['displayName'])     
-
+        if old_question is None:
+            verb_noun_string,parsed_string, entity_string, entity_list = nlp.main(event_data['message']['text'])
+            resp = create_card_response(verb_noun_string,entity_string,entity_list,event_data['message']['text'],event_data['user']['displayName'])
+        else:
+            verb_noun_string,parsed_string, entity_string, entity_list = nlp.main(event_data['message']['text'])
+            resp = create_card_response(verb_noun_string,entity_string,entity_list,event_data['message']['text'],event_data['user']['displayName'])
+            
     elif event_data['type'] == 'CARD_CLICKED':
         action_name = event_data['action']['actionMethodName']
         parameters = event_data['action']['parameters']
