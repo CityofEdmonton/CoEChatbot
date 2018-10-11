@@ -133,7 +133,7 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
 
 
     for word in library.CHEER_LIST:
-        if search.similar(event_message, word)>=search.SIMILAR_RATE:
+        if search.similar(event_message, word)>=0.7:
             text = ("Hey! "+user_name+" Thank you for talking to Chatbot about Chatbot :D Please type <b>'help'</b> to get the list of questions I could answer for now!")
             headertitle = 'City of Edmonton chatbot'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
@@ -142,7 +142,7 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
             return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)
 
     for word in library.BYE_LIST:
-        if search.similar(event_message, word)>=search.SIMILAR_RATE:
+        if search.similar(event_message, word)>=0.7:
             text = 'Bye~ Thank you very much for chatting with me. Hope the information provided is helpful. Or, you can leave your feedback here! Have a nice day!'
             headertitle = 'City of Edmonton chatbot'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
