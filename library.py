@@ -86,6 +86,6 @@ QUESTION_DIC = {
 "how long to boil eggs": [80, "answer"],
 "how many centimeters in an inch": [81, "answer"],
 "why is the sky blue": [82, "answer"],
-"how to write a cover letter": [83, "answer", "link"],
-"what is the meaning of life": [84, "drink tea hahahah", "link"],
+"how to write a cover letter": [83, "answer", "www.google.ca"],
+"what is the meaning of life": [84, "drink tea hahahah", "www.google.ca"],
 }

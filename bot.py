@@ -123,6 +123,9 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
 
     if event_message.lower() == "jackson_check_db":
         search.check_question_db()
+        headertitle = 'Admin readonly'
+        database_logger.logging_to_database(user_name, "Elastic update","admin",parsed_key_words, "Null", "Null")
+        return cardsFactory._text_card(headertitle, "Done!")
 
     if event_message.lower() == "help":
             text = ("At this moment, you could ask me about:\n1. Chatbot type\n2. Use cases in industry\n"
@@ -189,7 +192,6 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
             database_logger.logging_to_database(user_name, question_from_user,related_questions_list,parsed_key_words, search_used, group)
             return response
         
-
 
 def respond_to_interactive_card_click(action_name, custom_params,user):
     """Creates a response for when the user clicks on an interactive card.
