@@ -38,6 +38,15 @@ INTERACTIVE_BUTTON_PARAMETER_KEY = "param_key"
 @app.route('/', methods=['POST'])
 def home_post():
     """Respond to POST requests to this endpoint.
+    DELIMITER $$
+    CREATE EVENT `Every_1_Minutes_Cleanup`
+    ON SCHEDULE EVERY 1 MINUTE STARTS '2015-09-01 00:00:00'
+    ON COMPLETION PRESERVE
+    DO BEGIN
+     delete from history.email_tem_table 
+    where TIMESTAMPDIFF(SECOND, timestamp, now())>300; 
+    END;$$
+    DELIMITER ;
 
     All requests sent to this endpoint from Hangouts Chat are POST
     requests.
@@ -60,9 +69,10 @@ def home_post():
             .format(event_data['user']['displayName'])) }
 
     elif event_data['type'] == 'MESSAGE':
+        old_question = database_logger.check_log_question_tem(event_data['user']['displayName'])
+        print("old_question", old_question)
         verb_noun_string,parsed_string, entity_string, entity_list = nlp.main(event_data['message']['text'])
         resp = create_card_response(verb_noun_string,entity_string,entity_list,event_data['message']['text'],event_data['user']['displayName'])     
-
 
     elif event_data['type'] == 'CARD_CLICKED':
         action_name = event_data['action']['actionMethodName']
@@ -118,21 +128,32 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
     if len(entity_list) != 0:
         parsed_key_words = entity_string.encode('utf-8')
     else:
-         parsed_key_words = verb_noun_string.encode('utf-8')
+        parsed_key_words = verb_noun_string.encode('utf-8')
+
+    if event_message.lower() == "help":
+            text = ("At this moment, you could ask me the top 70 questions from this website:\n https://www.mondovo.com/keywords/most-asked-questions-on-google\n")
+            headertitle = 'City of Edmonton chatbot'
+            database_logger.logging_to_database(user_name, question_from_user,"HELP",parsed_key_words, "Null", "Null")
+            return cardsFactory._text_card(headertitle, text)
 
 
-    if event_message.lower() == "jackson_check_db":
+    if event_message.lower() == "test" and user_name in library.ADMIN:
+        text = 'Do you want to send an email?'
+        headertitle = 'City of Edmonton chatbot'
+        headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
+        widgetimage = 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'
+        button1text = 'Yes, please'
+        button2text = 'No, thanks'
+        button1value = event_message
+        button2value = 'dont send email'
+        #database_logger.logging_to_database(user_name, question_from_user,"NOT FOUND",parsed_key_words, "Null", "Null")
+        return cardsFactory._text_card_with_image_with_two_buttons(headertitle, headerimage,text, widgetimage, button1text, button2text, button1value, button2value)     
+
+    if event_message.lower() == "jackson_check_db" and user_name in library.ADMIN:
         search.check_question_db()
         headertitle = 'Admin readonly'
         database_logger.logging_to_database(user_name, "Elastic update","admin",parsed_key_words, "Null", "Null")
         return cardsFactory._text_card(headertitle, "Done!")
-
-    if event_message.lower() == "help":
-            text = ("At this moment, you could ask me about:\n1. Chatbot type\n2. Use cases in industry\n"
-            "3. Use cases in municipal government\n4. Opportunities for COE\n5. Use cases for COE\n6. Benefits for COE\n7. Recommendations for COE\n8. Next steps\nhttps://www.mondovo.com/keywords/most-asked-questions-on-google\n")
-            headertitle = 'City of Edmonton chatbot'
-            database_logger.logging_to_database(user_name, question_from_user,"HELP",parsed_key_words, "Null", "Null")
-            return cardsFactory._text_card(headertitle, text)
 
 
     for word in library.CHEER_LIST:
@@ -152,10 +173,8 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
             widgetimage = 'https://img.buzzfeed.com/buzzfeed-static/static/2017-01/17/16/asset/buzzfeed-prod-fastlane-01/anigif_sub-buzz-20527-1484687195-4.gif'
             database_logger.logging_to_database(user_name, question_from_user,"BYE",parsed_key_words, "Null", "Null")
             return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)
-
     
     else:
-
         related_questions_list=[]
         related_questions_list, search_used, group=search.main(parsed_key_words, question_from_user)
 
@@ -198,6 +217,17 @@ def respond_to_interactive_card_click(action_name, custom_params,user):
     """
     if custom_params[0]['key'] == INTERACTIVE_BUTTON_PARAMETER_KEY:
         index = custom_params[0]['value']
-        theAnswer = search.getTheAns(index)
-        database_logger.update_selected_answer(user, index)
-        return theAnswer 
+        try:
+            int(index)
+            theAnswer = search.getTheAns(index)
+            database_logger.update_selected_answer(user, index)
+            return theAnswer
+
+        except: 
+            str(index)
+            if index == 'dont send email':
+                return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Question", "Sorry for didn't help you. ")
+
+            else:
+                database_logger.log_question_tem(user, index)
+                return cardsFactory._respons_text_card('UPDATE_MESSAGE',index, "Pleas type in your question description now... ")

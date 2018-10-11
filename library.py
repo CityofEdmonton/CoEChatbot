@@ -1,8 +1,10 @@
 CHEER_LIST=['hi','hello','how are you?','how are you','Hi JacksonBot']
 BYE_LIST=['thank you','goodbye','bye']
+ADMIN=['Zhipeng Chang']
 
 
 GROUP = "google"
+
 QUESTION_DIC = {
 "Chatbot type": [1, "answer"], 
 'Opportunities for COE': [2, "answer"],
