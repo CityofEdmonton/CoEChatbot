@@ -20,6 +20,8 @@ import database_logger
 import search
 import os
 import MySQLdb
+import smtplib
+
 from apiclient.discovery import build, build_from_document
 from flask import Flask, render_template, request, json, make_response
 from httplib2 import Http
@@ -73,14 +75,15 @@ def home_post():
             verb_noun_string,parsed_string, entity_string, entity_list = nlp.main(event_data['message']['text'])
             resp = create_card_response(verb_noun_string,entity_string,entity_list,event_data['message']['text'],event_data['user']['displayName'])
         else:
-            verb_noun_string,parsed_string, entity_string, entity_list = nlp.main(event_data['message']['text'])
-            resp = create_card_response(verb_noun_string,entity_string,entity_list,event_data['message']['text'],event_data['user']['displayName'])
-            
+            database_logger.delete_log_question_tem(event_data['user']['displayName'], old_question)
+            resp = create_group_card_respons(old_question,event_data['message']['text'],event_data['user']['displayName'], event_data['user']['email'])
+
     elif event_data['type'] == 'CARD_CLICKED':
         action_name = event_data['action']['actionMethodName']
         parameters = event_data['action']['parameters']
         user = event_data['user']['displayName']
-        resp = respond_to_interactive_card_click(action_name, parameters, user)
+        user_email = event_data['user']['email']
+        resp = respond_to_interactive_card_click(action_name, parameters, user, user_email)
 
     space_name = event_data['space']['name']
 
@@ -134,22 +137,9 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
 
     if event_message.lower() == "help":
             text = ("At this moment, you could ask me the top 70 questions from this website:\n https://www.mondovo.com/keywords/most-asked-questions-on-google\n")
-            headertitle = 'City of Edmonton chatbot'
+            headertitle = 'Help'
             database_logger.logging_to_database(user_name, question_from_user,"HELP",parsed_key_words, "Null", "Null")
-            return cardsFactory._text_card(headertitle, text)
-
-
-    if event_message.lower() == "test" and user_name in library.ADMIN:
-        text = 'Do you want to send an email?'
-        headertitle = 'City of Edmonton chatbot'
-        headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
-        widgetimage = 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'
-        button1text = 'Yes, please'
-        button2text = 'No, thanks'
-        button1value = event_message
-        button2value = 'dont send email'
-        #database_logger.logging_to_database(user_name, question_from_user,"NOT FOUND",parsed_key_words, "Null", "Null")
-        return cardsFactory._text_card_with_image_with_two_buttons(headertitle, headerimage,text, widgetimage, button1text, button2text, button1value, button2value)     
+            return cardsFactory._text_card(headertitle, text)   
 
     if event_message.lower() == "jackson_check_db" and user_name in library.ADMIN:
         search.check_question_db()
@@ -161,7 +151,7 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
     for word in library.CHEER_LIST:
         if search.similar(event_message, word)>=0.7:
             text = ("Hey! "+user_name+" Thank you for talking to Chatbot about Chatbot :D Please type <b>'help'</b> to get the list of questions I could answer for now!")
-            headertitle = 'City of Edmonton chatbot'
+            headertitle = 'Hi~'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://media1.tenor.com/images/9ea72ef078139ced289852e8a4ea0c5c/tenor.gif?itemid=7537923'
             database_logger.logging_to_database(user_name, question_from_user,"CHEER",parsed_key_words, "Null", "Null")
@@ -170,7 +160,7 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
     for word in library.BYE_LIST:
         if search.similar(event_message, word)>=0.7:
             text = 'Bye~ Thank you very much for chatting with me. Hope the information provided is helpful. Or, you can leave your feedback here! Have a nice day!'
-            headertitle = 'City of Edmonton chatbot'
+            headertitle = 'Bye~'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://img.buzzfeed.com/buzzfeed-static/static/2017-01/17/16/asset/buzzfeed-prod-fastlane-01/anigif_sub-buzz-20527-1484687195-4.gif'
             database_logger.logging_to_database(user_name, question_from_user,"BYE",parsed_key_words, "Null", "Null")
@@ -181,12 +171,16 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
         related_questions_list, search_used, group=search.main(parsed_key_words, question_from_user)
 
         if (len(related_questions_list)==0):
-            text = "I am afraid I am not able to understand and answer your question. I am still learning. Currently, please type <b>'help'</b> to get the list of questions I could answer for now!"
-            headertitle = 'City of Edmonton chatbot'
+            text = 'Sorry, no answers found. Do you want to ask one of our support team members? '
+            headertitle = 'Search result'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'
+            button1text = 'Yes, please!'
+            button2text = 'No, thanks.'
+            button1value = event_message
+            button2value = 'dont send email'
             database_logger.logging_to_database(user_name, question_from_user,"NOT FOUND",parsed_key_words, "Null", "Null")
-            return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)      
+            return cardsFactory._text_card_with_image_with_two_buttons(headertitle, headerimage,text, widgetimage, button1text, button2text, button1value, button2value)     
             
         else:
             response = dict()
@@ -212,9 +206,36 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
             response['cards'] = cards
             database_logger.logging_to_database(user_name, question_from_user,related_questions_list,parsed_key_words, search_used, group)
             return response
-        
+ 
+def create_email_respons(question,event_message,user_name, user_email):
+    """Creates a card response based on the message sent in Hangouts Chat.
+    """
+    email_description = event_message.encode('utf-8')
+    headertitle = 'Email preview'
+    headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
+    button1text = 'Send now!'
+    button2text = 'No, I will search again.'
+    button1value = 'Email from: '+ user_name + '\nEmail address: '+user_email+'\nQuestion: '+ question +'\nDescription: '+ email_description
+    button2value = 'dont send email'
+    text1 = 'Question: '+ question
+    text2 = 'Description: '+ email_description
+    return cardsFactory._text_card_with_email_with_two_buttons(headertitle, headerimage, text1, text2, button1text, button2text, button1value, button2value)     
 
-def respond_to_interactive_card_click(action_name, custom_params,user):
+def create_group_card_respons(question,event_message,user_name, user_email):
+    """Creates a card response based on the message sent in Hangouts Chat.
+    """
+    issue_discription = event_message.encode('utf-8')
+    headertitle = 'Issue preview'
+    headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
+    button1text = 'Ask now!'
+    button2text = 'No, I will search again.'
+    button1value = 'ask team'
+    button2value = 'dont send email'
+    text1 = 'Question: '+ question
+    text2 = 'Description: '+ issue_discription
+    return cardsFactory._text_card_with_email_with_two_buttons(headertitle, headerimage, text1, text2, button1text, button2text, button1value, button2value)           
+
+def respond_to_interactive_card_click(action_name, custom_params,user, user_email):
     """Creates a response for when the user clicks on an interactive card.
     """
     if custom_params[0]['key'] == INTERACTIVE_BUTTON_PARAMETER_KEY:
@@ -226,10 +247,17 @@ def respond_to_interactive_card_click(action_name, custom_params,user):
             return theAnswer
 
         except: 
-            str(index)
-            if index == 'dont send email':
-                return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Question", "Sorry for didn't help you. ")
+            value = str(index)
+            if value == 'dont send email':
+                return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Create Remedy ticket", "Sorry for didn't help you. ")
 
+            if value =='ask team':
+                return { 'text': "Hi team <users/all>! Could you please help the issue above!"}
+                
+            if 'Email from: 'in value:
+                sent = send_email(value, user_email)
+                if sent:
+                    return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Create Remedy ticket", "Sent! Our support staff will contact you shortly.")
             else:
-                database_logger.log_question_tem(user, index)
-                return cardsFactory._respons_text_card('UPDATE_MESSAGE',index, "Pleas type in your question description now... ")
+                database_logger.log_question_tem(user, value)
+                return cardsFactory._respons_text_card('UPDATE_MESSAGE', value, "Pleas type in your question description now ... ")

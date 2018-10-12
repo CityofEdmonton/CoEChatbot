@@ -79,3 +79,13 @@ def check_log_question_tem(user):
         return question[0]
     else:
         return None
+
+def delete_log_question_tem(user, question):
+    db = connect_to_cloudsql()
+    cursor = db.cursor()
+    user=str(user)
+    question = str(question)
+    cursor.execute("USE history")
+    cursor.execute("SET SQL_SAFE_UPDATES = 0")
+    cursor.execute("delete from history.email_tem_table where User = %s and Questions = %s", [user, question])
+    db.commit()
