@@ -53,15 +53,16 @@ def update_selected_answer(user, answer_selected):
     db.commit()
 
 
-def log_question_tem(user, question):
+def log_question_tem(user, question,respons):
     db = connect_to_cloudsql()
     cursor = db.cursor()
     user=str(user)
     question = str(question)
+    respons = str(respons)
     cursor.execute("USE history")
     cursor.execute("SET SQL_SAFE_UPDATES = 0")
     cursor.execute("delete from history.email_tem_table where TIMESTAMPDIFF(SECOND, Timestamp, now())>300")
-    cursor.execute("INSERT INTO  history.email_tem_table(User, Questions, Respons) VALUES (%s, %s, %s)", [user, question, "Yes"])
+    cursor.execute("INSERT INTO  history.email_tem_table(User, Questions, Respons) VALUES (%s, %s, %s)", [user, question, respons])
     db.commit()
 
 
@@ -73,10 +74,11 @@ def check_log_question_tem(user):
     cursor.execute("SET SQL_SAFE_UPDATES = 0")
     cursor.execute("delete from history.email_tem_table where TIMESTAMPDIFF(SECOND, Timestamp, now())>300")
     cursor.execute("select Questions from history.email_tem_table where User =%s", [user])
-    question =cursor.fetchone()
+    data =cursor.fetchone()
     db.commit()
-    if question is not None:
-        return question[0]
+    if data is not None:
+        question = data[0]
+        return question
     else:
         return None
 
