@@ -129,9 +129,9 @@ def send_async_response(response, space_name, thread_id):
 def create_card_response(verb_noun_string,entity_string,entity_list,event_message,user_name):
     """Creates a card response based on the message sent in Hangouts Chat.
     """
-    question_from_user = clean_message(event_message)
+    question_from_user = clean_message(event_message).encode('utf-8')
 
-    parsed_key_words = verb_noun_string
+    parsed_key_words = verb_noun_string.encode('utf-8')
 
     pre_defined_question = check_pre_defined_questions(question_from_user, user_name, parsed_key_words)
 
@@ -149,10 +149,12 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
             widgetimage = 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'
             button1text = 'Yes, please!'
             button2text = 'No, thanks.'
+            button3text = 'Google for me!'
             button1value = question_from_user
             button2value = 'dont send email'
+            button3value = 'google: '+question_from_user
             database_logger.logging_to_database(user_name, question_from_user,"NOT FOUND",parsed_key_words, "Null", "Null")
-            return cardsFactory._text_card_with_image_with_two_buttons(headertitle, headerimage,text, widgetimage, button1text, button2text, button1value, button2value)     
+            return cardsFactory._text_card_with_image_with_three_buttons(headertitle, headerimage,text, widgetimage, button1text, button2text,button3text, button1value, button2value, button3value)     
             
         else:
             response = dict()
@@ -182,7 +184,7 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
 def create_email_respons(question,event_message,user_name, user_email):
     """Creates a card response based on the message sent in Hangouts Chat.
     """
-    email_description = event_message.replace('@JacksonBot','')
+    email_description = clean_message (event_message)
     headertitle = 'Email preview'
     headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
     button1text = 'Send now!'
@@ -196,7 +198,7 @@ def create_email_respons(question,event_message,user_name, user_email):
 def create_group_card_respons(question,event_message,user_name, user_email):
     """Creates a card response based on the message sent in Hangouts Chat.
     """
-    issue_discription = event_message.replace('@JacksonBot','')
+    issue_discription = clean_message (event_message)
     headertitle = 'Issue preview'
     headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
     button1text = 'Ask now!'
@@ -226,6 +228,10 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
 
             elif value =='ask team': 
                 return {'text': "Hi team <users/all>! Could you please help the issue above!"}
+
+            elif 'google: ' in value:
+                question = value.replace('google: ','')
+                return search.google_search(question)
 
             elif 'Email from: 'in value:
                 sent = send_email(value, user_email)
@@ -281,4 +287,4 @@ def check_pre_defined_questions(question_from_user, user_name, parsed_key_words)
     else:
         return None
 
-
+ 

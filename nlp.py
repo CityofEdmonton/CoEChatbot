@@ -172,8 +172,6 @@ def entities_text(text):
     return entity_string, entity_list
 
 def main(text):
-    # Extracts subject-verb-object triples from the given text file,
-    # and print each one.
     parsed_string = None
     analysis = analyze_syntax(text)
     tokens = analysis.get('tokens', [])

@@ -92,6 +92,25 @@ def _text_card_with_image_with_two_buttons(headertitle, headerimage,text, widget
             }
             ]
             }
+
+def _text_card_with_image_with_three_buttons(headertitle, headerimage,text, widgetimage, button1text, button2text,button3text, button1value, button2value, button3value):
+            return {
+            'cards': [{'header': {'title': headertitle,  'subtitle': 'City of Edmonton chatbot','imageUrl': headerimage,'imageStyle': 'IMAGE'}}, 
+            {'sections':[{
+            'widgets': [
+            {'image': {'imageUrl': widgetimage}},
+            {'textParagraph': {'text': text}},
+            {'buttons': [{'textButton': {'text': button1text,'onClick': {'action': {'actionMethodName': INTERACTIVE_TEXT_BUTTON_ACTION,'parameters': [{'key': INTERACTIVE_BUTTON_PARAMETER_KEY,'value': button1value}]}}}}]},
+            {'buttons': [{'textButton': {'text': button2text,'onClick': {'action': {'actionMethodName': INTERACTIVE_TEXT_BUTTON_ACTION,'parameters': [{'key': INTERACTIVE_BUTTON_PARAMETER_KEY,'value': button2value}]}}}}]},
+            {'buttons': [{'textButton': {'text': button3text,'onClick': {'action': {'actionMethodName': INTERACTIVE_TEXT_BUTTON_ACTION,'parameters': [{'key': INTERACTIVE_BUTTON_PARAMETER_KEY,'value': button3value}]}}}}]}
+
+            ]
+            }
+            ]
+            }
+            ]
+            }
+
 def _text_card_with_email_with_two_buttons(headertitle, headerimage,text1,text2, button1text, button2text, button1value, button2value):
             return {
             'cards': [{'header': {'title': headertitle,  'subtitle': 'City of Edmonton chatbot','imageUrl': headerimage,'imageStyle': 'IMAGE'}}, 
@@ -107,6 +126,7 @@ def _text_card_with_email_with_two_buttons(headertitle, headerimage,text1,text2,
             }
             ]
             }
+
 
 def _text_card(title,text):
             return {

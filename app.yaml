@@ -11,7 +11,8 @@ libraries:
   version: "latest"
 - name: ssl
   version: "latest"
-
+- name: lxml
+  version: "latest" 
 # [START env_variables]
 env_variables:
     CLOUDSQL_CONNECTION_NAME: chatbot-216118:us-west1:chatbothistorydb2

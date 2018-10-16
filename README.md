@@ -23,10 +23,10 @@ The sample is built using Python on Google App Engine, Standard Environment.
       ```
   1. Install any extra libraries using `pip`.
       ```
-      pip install -t lib -r requirements.txt
-      pip install --upgrade -t lib oauth2client
-      pip install --upgrade -t lib google-api-python-client
-      pip install --upgrade -t lib httplib2
+      pip2 install -t lib -r requirements.txt
+      pip2 install --upgrade -t lib oauth2client
+      pip2 install --upgrade -t lib google-api-python-client
+      pip2 install --upgrade -t lib httplib2
       ```
   1. Create an App Engine instance for the bot.
      ```
@@ -81,3 +81,25 @@ from tempfile import TemporaryFile
 ```
 virtualenv deactivate
 ```
+
+
+Commends for adding rules to vm:
+
+sudo ufw allow from TRUSTED_IP to any port 8080
+
+sudo ufw status
+
+sudo ufw status numbered
+
+sudo ufw delete THENUMBER
+
+Current status:
+To                         Action      From
+--                         ------      ----
+22                         ALLOW       Anywhere                  
+8080                       ALLOW       13.77.183.217             
+8080/tcp                   ALLOW       Anywhere                  
+22 (v6)                    ALLOW       Anywhere (v6)             
+8080/tcp (v6)              ALLOW       Anywhere (v6) 
+
+flex: https://cloud.google.com/appengine/docs/flexible/custom-runtimes/configuring-your-app-with-app-yaml#network_settings

@@ -4,7 +4,9 @@ from elasticsearch import Elasticsearch
 import cardsFactory
 import os
 import library
-
+from googlesearch import search
+import requests
+from bs4 import BeautifulSoup
 
 es = Elasticsearch(['http://104.199.118.220:8080'],
                     send_get_body_as='POST',)
@@ -31,10 +33,11 @@ def check_question_db():
 
 def search_related_rate(parsed_string):
     related_questions_list = []
-    for question,property_list in library.QUESTION_DIC.items():
-        question_index = property_list[0]
+    res = es.search(index=library.GROUP, body={"query": {"match_all": {}}})
+    for hit in res['hits']['hits']:
+        question = hit["_source"]['question']
         if similar(parsed_string,question)>=SIMILAR_RATE:
-            related_questions_list.append([question, question_index])
+            related_questions_list.append([question, hit["_id"]])
     return related_questions_list
 
 
@@ -47,7 +50,6 @@ def elasticsearch(parsed_string):
     res = es.search(index=library.GROUP, body={'query':{ 'match_phrase':{ "question":parsed_string}} })
     for hit in res['hits']['hits']:
         result_list.append([hit["_source"]['question'], hit["_id"]])
-
     return result_list
 
 
@@ -59,6 +61,29 @@ def getTheAns(index):
     else:
         return cardsFactory._respons_text_card(action_response,res['_source']['question'],res['_source']['answer'])  
 
+def google_search(search_data):
+    response = dict()
+    cards = list()
+    widgets = list()
+    num = 1
+    header = {
+    'header': {
+    'title': 'Google result for '+search_data,
+    'subtitle': 'City of Edmonton chatbot',
+    'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png',
+    'imageStyle': 'IMAGE'
+    }
+    }
+    cards.append(header)
+    for url in search(search_data, stop=1, only_standard=True):
+        title = "Google search result "+str(num)
+        widgets.append(
+            {'buttons': [{'textButton': {'text': title, 'onClick': {'openLink': {'url': url}}}}]}
+        )
+        num += 1
+    cards.append({ 'sections': [{ 'widgets': widgets }]})
+    response['cards'] = cards   
+    return response
 
 def main(parsed_string, user_input):
     if parsed_string == "":

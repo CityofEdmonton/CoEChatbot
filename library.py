@@ -2,7 +2,6 @@ CHEER_LIST=['hi','hello','How are you']
 BYE_LIST=['yes! thanks','yes! thank you','thank you','goodbye','bye', 'thanks']
 ADMIN=['Zhipeng Chang']
 
-
 GROUP = "google"
 
 QUESTION_DIC = {
