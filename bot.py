@@ -129,45 +129,15 @@ def send_async_response(response, space_name, thread_id):
 def create_card_response(verb_noun_string,entity_string,entity_list,event_message,user_name):
     """Creates a card response based on the message sent in Hangouts Chat.
     """
-    question_from_user_lower = event_message.replace('@JacksonBot','').replace('JacksonBot','').lower().encode('utf-8')
-    question_from_user = event_message.replace('@JacksonBot','').replace('JacksonBot','').encode('utf-8')
+    question_from_user = clean_message(event_message)
 
+    parsed_key_words = verb_noun_string
 
-    if len(entity_list) != 0:
-        parsed_key_words = entity_string.encode('utf-8')
-    else:
-        parsed_key_words = verb_noun_string.encode('utf-8')
+    pre_defined_question = check_pre_defined_questions(question_from_user, user_name, parsed_key_words)
 
-    if question_from_user_lower == "help":
-        text = ("At this moment, you could ask me the top 70 questions from this website:\n https://www.mondovo.com/keywords/most-asked-questions-on-google\n")
-        headertitle = 'Help'
-        database_logger.logging_to_database(user_name, question_from_user,"HELP",parsed_key_words, "Null", "Null")
-        return cardsFactory._text_card(headertitle, text)   
+    if pre_defined_question is not None:
+        return pre_defined_question
 
-    if question_from_user_lower == "jackson_check_db" and user_name in library.ADMIN:
-        search.check_question_db()
-        headertitle = 'Admin readonly'
-        database_logger.logging_to_database(user_name, "Elastic update","admin",parsed_key_words, "Null", "Null")
-        return cardsFactory._text_card(headertitle, "Done!")
-
-    for word in library.CHEER_LIST:
-        if search.similar(question_from_user_lower, word)>=0.7:
-            text = ("Hey! "+user_name+" Thank you for talking to Chatbot about Chatbot :D Please type <b>'help'</b> to get the list of questions I could answer for now!")
-            headertitle = 'Hi~'
-            headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
-            widgetimage = 'https://media1.tenor.com/images/9ea72ef078139ced289852e8a4ea0c5c/tenor.gif?itemid=7537923'
-            database_logger.logging_to_database(user_name, question_from_user,"CHEER",parsed_key_words, "Null", "Null")
-            return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)
-
-    for word in library.BYE_LIST:
-        if search.similar(question_from_user_lower, word)>=0.7:
-            text = 'Bye~ Thank you very much for chatting with me. Hope the information provided is helpful. Or, you can leave your feedback here! Have a nice day!'
-            headertitle = 'Bye~'
-            headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
-            widgetimage = 'https://img.buzzfeed.com/buzzfeed-static/static/2017-01/17/16/asset/buzzfeed-prod-fastlane-01/anigif_sub-buzz-20527-1484687195-4.gif'
-            database_logger.logging_to_database(user_name, question_from_user,"BYE",parsed_key_words, "Null", "Null")
-            return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)
-    
     else:
         related_questions_list=[]
         related_questions_list, search_used, group=search.main(parsed_key_words, question_from_user)
@@ -212,7 +182,7 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
 def create_email_respons(question,event_message,user_name, user_email):
     """Creates a card response based on the message sent in Hangouts Chat.
     """
-    email_description = event_message.replace('@JacksonBot','').replace('JacksonBot','').encode('utf-8')
+    email_description = event_message.replace('@JacksonBot','')
     headertitle = 'Email preview'
     headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
     button1text = 'Send now!'
@@ -226,7 +196,7 @@ def create_email_respons(question,event_message,user_name, user_email):
 def create_group_card_respons(question,event_message,user_name, user_email):
     """Creates a card response based on the message sent in Hangouts Chat.
     """
-    issue_discription = event_message.replace('@JacksonBot','').replace('JacksonBot','').encode('utf-8')
+    issue_discription = event_message.replace('@JacksonBot','')
     headertitle = 'Issue preview'
     headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
     button1text = 'Ask now!'
@@ -254,13 +224,61 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
             if value == 'dont send email':
                 return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Create Remedy ticket", "Sorry for didn't help you. ")
 
-            if value =='ask team': 
+            elif value =='ask team': 
                 return {'text': "Hi team <users/all>! Could you please help the issue above!"}
 
-            if 'Email from: 'in value:
+            elif 'Email from: 'in value:
                 sent = send_email(value, user_email)
                 if sent:
                     return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Create Remedy ticket", "Sent! Our support staff will contact you shortly.")
             else:
                 database_logger.log_question_tem(user, value, 'ask')
                 return cardsFactory._respons_text_card('UPDATE_MESSAGE', value, "Pleas type in your question description now ... ")
+
+
+def clean_message (event_message):
+    if ' @JacksonBot ' in event_message:
+        return event_message.replace(' @JacksonBot ','')
+    elif ' @JacksonBot' in event_message:
+        return event_message.replace(' @JacksonBot','')
+    elif 'JacksonBot' in event_message:
+        return event_message.replace('JacksonBot','')
+    else:
+        return event_message
+
+
+def check_pre_defined_questions(question_from_user, user_name, parsed_key_words):
+    for word in library.CHEER_LIST:
+        if search.similar(question_from_user, word)>=0.7 or word.lower() in question_from_user.lower():
+            text = ("Hey! "+user_name+" Thank you for talking to Chatbot about Chatbot :D Please type <b>'help'</b> to get the list of questions I could answer for now!")
+            headertitle = 'Hi~'
+            headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
+            widgetimage = 'https://media1.tenor.com/images/9ea72ef078139ced289852e8a4ea0c5c/tenor.gif?itemid=7537923'
+            database_logger.logging_to_database(user_name, question_from_user,"CHEER",parsed_key_words, "Null", "Null")
+            return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)
+
+    for word in library.BYE_LIST:
+        if search.similar(question_from_user, word)>=0.7 or word.lower() in question_from_user.lower():
+            text = 'Bye~ Thank you very much for chatting with me. Hope the information provided is helpful. Or, you can leave your feedback here! Have a nice day!'
+            headertitle = 'Bye~'
+            headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
+            widgetimage = 'https://img.buzzfeed.com/buzzfeed-static/static/2017-01/17/16/asset/buzzfeed-prod-fastlane-01/anigif_sub-buzz-20527-1484687195-4.gif'
+            database_logger.logging_to_database(user_name, question_from_user,"BYE",parsed_key_words, "Null", "Null")
+            return cardsFactory._text_card_with_image(headertitle, headerimage,text, widgetimage)
+
+    if question_from_user == "help":
+        text = ("At this moment, you could ask me the top 70 questions from this website:\n https://www.mondovo.com/keywords/most-asked-questions-on-google\n")
+        headertitle = 'Help'
+        database_logger.logging_to_database(user_name, question_from_user,"HELP",parsed_key_words, "Null", "Null")
+        return cardsFactory._text_card(headertitle, text)   
+
+    elif question_from_user == "jackson_check_db" and user_name in library.ADMIN:
+        search.check_question_db()
+        headertitle = 'Admin readonly'
+        database_logger.logging_to_database(user_name, "Elastic update","admin",parsed_key_words, "Null", "Null")
+        return cardsFactory._text_card(headertitle, "Done!")
+    
+    else:
+        return None
+
+
