@@ -70,15 +70,18 @@ def home_post():
             .format(event_data['user']['displayName'])) }
 
     elif event_data['type'] == 'MESSAGE':
-        old_question = database_logger.check_log_question_tem(event_data['user']['displayName'])
+        old_question, respons = database_logger.check_log_question_tem(event_data['user']['displayName'])
         if old_question is None:
             question = clean_message(event_data['message']['text'])
             verb_noun_string,parsed_string, entity_string, entity_list = nlp.main(question)
             resp = create_card_response(verb_noun_string,entity_string,entity_list,event_data['message']['text'],event_data['user']['displayName'])
         else:
             database_logger.delete_log_question_tem(event_data['user']['displayName'], old_question)
-            resp = create_group_card_respons(old_question,event_data['message']['text'],event_data['user']['displayName'], event_data['user']['email'])
+            if respons == 'ask':
+                resp = create_group_card_respons(old_question,event_data['message']['text'],event_data['user']['displayName'], event_data['user']['email'])
 
+            elif respons == 'add':
+                resp = create_addquestion_card_respons(old_question,event_data['message']['text'],event_data['user']['displayName'], event_data['user']['email'])
     elif event_data['type'] == 'CARD_CLICKED':
         action_name = event_data['action']['actionMethodName']
         parameters = event_data['action']['parameters']
@@ -210,6 +213,19 @@ def create_group_card_respons(question,event_message,user_name, user_email):
     text2 = 'Description: '+ issue_discription
     return cardsFactory._text_card_with_email_with_two_buttons(headertitle, headerimage, text1, text2, button1text, button2text, button1value, button2value)    
 
+def create_addquestion_card_respons(question,event_message,user_name, user_email):
+    """Creates a card response based on the message sent in Hangouts Chat.
+    """
+    answer = clean_message (event_message)
+    headertitle = 'Question preview'
+    headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
+    button1text = 'Add now!'
+    button2text = 'No, I will add later.'
+    button1value = question + ' add_question ' + answer
+    button2value = 'dont add'
+    text1 = 'Question: '+ question
+    text2 = 'Answer: '+ answer
+    return cardsFactory._text_card_with_email_with_two_buttons(headertitle, headerimage, text1, text2, button1text, button2text, button1value, button2value)   
 
 def respond_to_interactive_card_click(action_name, custom_params,user, user_email):
     """Creates a response for when the user clicks on an interactive card.
@@ -229,6 +245,15 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
 
             elif value =='ask team': 
                 return {'text': "Hi team <users/all>! Could you please help the issue above!"}
+
+            elif ' add_question ' in value: 
+                question_answer = value.split(' add_question ')
+                question = question_answer[0]
+                answer = question_answer[1]
+                search.add_question_to_db(question, answer)
+                headertitle = 'Add question to DB'
+                text = "Just added. \nQuestion: "+question+"\nAnswer: "+answer
+                return cardsFactory._text_card(headertitle, text)
 
             elif 'google: ' in value:
                 question = value.replace('google: ','')
@@ -284,6 +309,11 @@ def check_pre_defined_questions(question_from_user, user_name, parsed_key_words)
         headertitle = 'Admin readonly'
         database_logger.logging_to_database(user_name, "Elastic update","admin",parsed_key_words, "Null", "Null")
         return cardsFactory._text_card(headertitle, "Done!")
+
+    elif "add_question" in question_from_user and user_name in library.ADMIN:
+        question = question_from_user.replace('add_question:','')
+        database_logger.log_question_tem(user_name, question, 'add')
+        return cardsFactory._text_card(question, "Pleas type in the answer now ... ")
     
     else:
         return None

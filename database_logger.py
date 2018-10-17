@@ -73,14 +73,15 @@ def check_log_question_tem(user):
     cursor.execute("USE history")
     cursor.execute("SET SQL_SAFE_UPDATES = 0")
     cursor.execute("delete from history.email_tem_table where TIMESTAMPDIFF(SECOND, Timestamp, now())>300")
-    cursor.execute("select Questions from history.email_tem_table where User =%s", [user])
+    cursor.execute("select Questions, Respons from history.email_tem_table where User =%s", [user])
     data =cursor.fetchone()
     db.commit()
     if data is not None:
         question = data[0]
-        return question
+        respons = data[1]
+        return question, respons
     else:
-        return None
+        return None, None
 
 def delete_log_question_tem(user, question):
     db = connect_to_cloudsql()
