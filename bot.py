@@ -72,7 +72,8 @@ def home_post():
     elif event_data['type'] == 'MESSAGE':
         old_question = database_logger.check_log_question_tem(event_data['user']['displayName'])
         if old_question is None:
-            verb_noun_string,parsed_string, entity_string, entity_list = nlp.main(event_data['message']['text'])
+            question = clean_message(event_data['message']['text'])
+            verb_noun_string,parsed_string, entity_string, entity_list = nlp.main(question)
             resp = create_card_response(verb_noun_string,entity_string,entity_list,event_data['message']['text'],event_data['user']['displayName'])
         else:
             database_logger.delete_log_question_tem(event_data['user']['displayName'], old_question)
@@ -143,16 +144,16 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
         related_questions_list, search_used, group=search.main(parsed_key_words, question_from_user)
 
         if (len(related_questions_list)==0):
-            text = 'Sorry, no answers found. Do you want to ask one of our support team members? '
+            text = 'Sorry, no answers found. Do you want to ask one of our support team members? Or do you want to search on Google first? '
             headertitle = 'Search result'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
             widgetimage = 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'
-            button1text = 'Yes, please!'
-            button2text = 'No, thanks.'
-            button3text = 'Google for me!'
-            button1value = question_from_user
-            button2value = 'dont send email'
-            button3value = 'google: '+question_from_user
+            button2text = 'Ask support team!'
+            button3text = 'No, thanks.'
+            button1text = 'Google for me!'
+            button2value = question_from_user
+            button3value = 'dont send email'
+            button1value = 'google: '+question_from_user
             database_logger.logging_to_database(user_name, question_from_user,"NOT FOUND",parsed_key_words, "Null", "Null")
             return cardsFactory._text_card_with_image_with_three_buttons(headertitle, headerimage,text, widgetimage, button1text, button2text,button3text, button1value, button2value, button3value)     
             
@@ -224,7 +225,7 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
         except: 
             value = str(index)
             if value == 'dont send email':
-                return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Create Remedy ticket", "Sorry for didn't help you. ")
+                return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Sorry...", "Sorry for didn't help you. ")
 
             elif value =='ask team': 
                 return {'text': "Hi team <users/all>! Could you please help the issue above!"}
@@ -239,7 +240,7 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
                     return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Create Remedy ticket", "Sent! Our support staff will contact you shortly.")
             else:
                 database_logger.log_question_tem(user, value, 'ask')
-                return cardsFactory._respons_text_card('UPDATE_MESSAGE', value, "Pleas type in your question description now ... ")
+                return cardsFactory._text_card(value, "Pleas type in your question description now ... ")
 
 
 def clean_message (event_message):

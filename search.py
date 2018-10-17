@@ -14,7 +14,7 @@ SIMILAR_RATE = 0.55
 
 
 def check_question_db():
-    es.indices.delete(index='library.GROUP', ignore=[400, 404])
+    es.indices.delete(index=library.GROUP, ignore=[400, 404])
     for question, property_list in library.QUESTION_DIC.items():
         index = property_list[0]
         answer = property_list[1]
@@ -33,7 +33,7 @@ def check_question_db():
 
 def search_related_rate(parsed_string):
     related_questions_list = []
-    res = es.search(index=library.GROUP, body={"query": {"match_all": {}}})
+    res = es.search(index=library.GROUP, body={'size' : 10000, "query": {"match_all": {}}})
     for hit in res['hits']['hits']:
         question = hit["_source"]['question']
         if similar(parsed_string,question)>=SIMILAR_RATE:
