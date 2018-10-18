@@ -82,11 +82,13 @@ def home_post():
 
             elif respons == 'add':
                 resp = create_addquestion_card_respons(old_question,event_data['message']['text'],event_data['user']['displayName'], event_data['user']['email'])
+
     elif event_data['type'] == 'CARD_CLICKED':
         action_name = event_data['action']['actionMethodName']
         parameters = event_data['action']['parameters']
         user = event_data['user']['displayName']
         user_email = event_data['user']['email']
+        print(event_data['user'])
         resp = respond_to_interactive_card_click(action_name, parameters, user, user_email)
 
     space_name = event_data['space']['name']
@@ -244,7 +246,11 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
                 return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Sorry...", "Sorry for didn't help you. ")
 
             elif value =='ask team': 
-                return {'text': "Hi team <users/all>! Could you please help the issue above!"}
+                text = "Hi "
+                for support_staff in library.SUPPORT_USER_ID:
+                    text += support_staff
+                text += "! Could you please help the issue above!"
+                return {'text': text}
 
             elif ' add_question ' in value: 
                 question_answer = value.split(' add_question ')
@@ -253,7 +259,7 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
                 search.add_question_to_db(question, answer)
                 headertitle = 'Add question to DB'
                 text = "Just added. \nQuestion: "+question+"\nAnswer: "+answer
-                return cardsFactory._text_card(headertitle, text)
+                return cardsFactory._respons_text_card('UPDATE_MESSAGE',headertitle, text)
 
             elif 'google: ' in value:
                 question = value.replace('google: ','')

@@ -1,7 +1,7 @@
 CHEER_LIST=['hi','hello','How are you']
 BYE_LIST=['yes! thanks','yes! thank you','thank you','goodbye','bye', 'thanks']
 ADMIN=['Zhipeng Chang']
-
+SUPPORT_USER_ID = ['<users/107686237770712793227>']
 GROUP = "google"
 
 QUESTION_DIC = {
