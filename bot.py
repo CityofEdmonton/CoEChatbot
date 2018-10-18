@@ -158,7 +158,7 @@ def create_card_response(verb_noun_string,entity_string,entity_list,event_messag
             button1text = 'Google for me!'
             button2value = question_from_user
             button3value = 'dont send email'
-            button1value = 'google: '+question_from_user
+            button1value = 'google_search: '+question_from_user
             database_logger.logging_to_database(user_name, question_from_user,"NOT FOUND",parsed_key_words, "Null", "Null")
             return cardsFactory._text_card_with_image_with_three_buttons(headertitle, headerimage,text, widgetimage, button1text, button2text,button3text, button1value, button2value, button3value)     
             
@@ -209,7 +209,7 @@ def create_group_card_respons(question,event_message,user_name, user_email):
     headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
     button1text = 'Ask now!'
     button2text = 'No, I will search again.'
-    button1value = 'ask team'
+    button1value = 'ask_team'
     button2value = 'dont send email'
     text1 = 'Question: '+ question
     text2 = 'Description: '+ issue_discription
@@ -242,10 +242,8 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
 
         except: 
             value = str(index)
-            if value == 'dont send email':
-                return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Sorry...", "Sorry for didn't help you. ")
-
-            elif value =='ask team': 
+            
+            if value =='ask_team': 
                 text = "Hi "
                 for support_staff in library.SUPPORT_USER_ID:
                     text += support_staff
@@ -261,14 +259,21 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
                 text = "Just added. \nQuestion: "+question+"\nAnswer: "+answer
                 return cardsFactory._respons_text_card('UPDATE_MESSAGE',headertitle, text)
 
-            elif 'google: ' in value:
-                question = value.replace('google: ','')
+            elif 'google_search: ' in value:
+                question = value.replace('google_search: ','')
                 return search.google_search(question)
 
             elif 'Email from: 'in value:
                 sent = send_email(value, user_email)
                 if sent:
                     return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Create Remedy ticket", "Sent! Our support staff will contact you shortly.")
+
+            elif value == 'dont send email':
+                return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Sorry...", "Sorry for didn't help you. ")
+
+            elif value == 'dont add':
+                return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Cancel adding", "Adding question canceled.")
+
             else:
                 database_logger.log_question_tem(user, value, 'ask')
                 return cardsFactory._text_card(value, "Pleas type in your question description now ... ")
