@@ -83,6 +83,9 @@ def home_post():
             elif respons == 'add':
                 resp = create_addquestion_card_respons(old_question,event_data['message']['text'],event_data['user']['displayName'], event_data['user']['email'])
 
+            elif respons == 'email':
+                resp = create_email_respons(old_question,event_data['message']['text'],event_data['user']['displayName'], event_data['user']['email'])
+
     elif event_data['type'] == 'CARD_CLICKED':
         action_name = event_data['action']['actionMethodName']
         parameters = event_data['action']['parameters']
@@ -157,7 +160,7 @@ def create_card_response(verb_noun_string, verb_list, noun_list, event_message, 
             button3text = 'No, thanks.'
             button1text = 'Google for me!'
             button2value = question_from_user
-            button3value = 'dont send email'
+            button3value = 'didnt_help'
             button1value = 'google_search: '+question_from_user
             database_logger.logging_to_database(user_name, question_from_user,"NOT FOUND",parsed_key_words, "Null", "Null")
             return cardsFactory._text_card_with_image_with_three_buttons(headertitle, headerimage,text, widgetimage, button1text, button2text,button3text, button1value, button2value, button3value)     
@@ -195,8 +198,8 @@ def create_email_respons(question,event_message,user_name, user_email):
     headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
     button1text = 'Send now!'
     button2text = 'No, I will search again.'
-    button1value = 'Email from: '+ user_name + '\nEmail address: '+user_email+'\nQuestion: '+ question +'\nDescription: '+ email_description
-    button2value = 'dont send email'
+    button1value = 'Email_from: '+ user_name + '\nEmail address: '+user_email+'\nQuestion: '+ question +'\nDescription: '+ email_description
+    button2value = 'didnt_help'
     text1 = 'Question: '+ question
     text2 = 'Description: '+ email_description
     return cardsFactory._text_card_with_two_buttons(headertitle, headerimage, text1, text2, button1text, button2text, button1value, button2value)     
@@ -210,7 +213,7 @@ def create_group_card_respons(question,event_message,user_name, user_email):
     button1text = 'Ask now!'
     button2text = 'No, I will search again.'
     button1value = 'ask_team'
-    button2value = 'dont send email'
+    button2value = 'didnt_help'
     text1 = 'Question: '+ question
     text2 = 'Description: '+ issue_discription
     return cardsFactory._text_card_with_two_buttons(headertitle, headerimage, text1, text2, button1text, button2text, button1value, button2value)    
@@ -218,13 +221,20 @@ def create_group_card_respons(question,event_message,user_name, user_email):
 def create_addquestion_card_respons(question,event_message,user_name, user_email):
     """Creates a card response based on the message sent in Hangouts Chat.
     """
-    answer = clean_message (event_message)
+    answer_and_link = clean_message (event_message)
+    data = answer_and_link.split('link:')
+    answer = data[0]
+    try:
+        link = data[1]
+    except Exception:
+        link = 'Null'
+
     headertitle = 'Question preview'
     headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
     button1text = 'Add now!'
     button2text = 'No, I will add later.'
-    button1value = question + ' add_question ' + answer
-    button2value = 'dont add'
+    button1value = question + ' add_question ' + answer + 'add_link' + link
+    button2value = 'dont_add'
     text1 = 'Question: '+ question
     text2 = 'Answer: '+ answer
     return cardsFactory._text_card_with_two_buttons(headertitle, headerimage, text1, text2, button1text, button2text, button1value, button2value)   
@@ -253,8 +263,11 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
             elif ' add_question ' in value: 
                 question_answer = value.split(' add_question ')
                 question = question_answer[0]
-                answer = question_answer[1]
-                search.add_question_to_db(question, answer)
+                answer_link = question_answer[1]
+                answer_link_list= answer_link.split(' add_link ')
+                answer = answer_link_list[0]
+                link = answer_link_list[1]
+                search.add_question_to_db(question, answer, link)
                 headertitle = 'Add question to DB'
                 text = "Just added. \nQuestion: "+question+"\nAnswer: "+answer
                 return cardsFactory._respons_text_card('UPDATE_MESSAGE',headertitle, text)
@@ -263,15 +276,15 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
                 question = value.replace('google_search: ','')
                 return search.google_search(question)
 
-            elif 'Email from: 'in value:
+            elif 'Email_from: 'in value:
                 sent = send_email(value, user_email)
                 if sent:
                     return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Create Remedy ticket", "Sent! Our support staff will contact you shortly.")
 
-            elif value == 'dont send email':
+            elif value == 'didnt_help':
                 return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Sorry...", "Sorry for didn't help you. ")
 
-            elif value == 'dont add':
+            elif value == 'dont_add':
                 return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Cancel adding", "Adding question canceled.")
 
             else:

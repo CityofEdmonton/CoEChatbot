@@ -12,13 +12,15 @@ es = Elasticsearch(['http://104.199.118.220:8080'],
                     send_get_body_as='POST',)
 SIMILAR_RATE = 0.55
 
-def add_question_to_db(question, answer):
+def add_question_to_db(question, answer, link):
+    if link == 'Null':
+        link = None
     res = es.search(index=library.GROUP, body={"query": {"match_all": {}}})
     index = int(res['hits']['total'])+1
     data = {
         'question': question,
         'answer': answer,
-        'link': None,
+        'link': link,
     }
     res = es.index(index=library.GROUP, doc_type='question', id=index, body=data)
     es.indices.refresh(index=library.GROUP)

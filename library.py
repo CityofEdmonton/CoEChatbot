@@ -53,7 +53,6 @@ QUESTION_DIC = {
 "How to open Chrome ": [45, "This answer will be updated by one of our supporting staffs soon ..."],
 "How to set Chrome as default browser": [46, "This answer will be updated by one of our supporting staffs soon ..."],
 
-
 "What time is it in london": [47, "This answer will be updated by one of our supporting staffs soon ..."],
 "How old am i": [48, "This answer will be updated by one of our supporting staffs soon ..."],
 "How to get rid of bed bugs": [49, "This answer will be updated by one of our supporting staffs soon ..."],
