@@ -83,32 +83,6 @@ def get_native_encoding_type():
     else:
         return 'UTF32'
 
-
-def find_triples(tokens,
-                 head_part_of_speech='VERB',
-                 right_dependency_label='DOBJ'):
-    """Generator function that searches the given tokens
-    with the given part of speech tag, that have dependencies
-    with the given labels.  For each such head found, yields a tuple
-    (left_dependent, head, right_dependent), where each element of the
-    tuple is an index into the tokens array.
-    """
-
-    for head, token in enumerate(tokens):
-
-        if token['partOfSpeech']['tag'] == head_part_of_speech:
-            children = dependents(tokens, head)
-            right_deps = []
-            for child in children:
-                child_token = tokens[child]
-                child_dep_label = child_token['dependencyEdge']['label']
-                if child_dep_label == right_dependency_label:
-                    right_deps.append(child)
-            for right_dep in right_deps:
-                yield (head, right_dep)
-
-
-
 def find_verb_noun(tokens):
     to_be_list = ['be', 'do']
     verb_list = []
@@ -126,57 +100,8 @@ def find_verb_noun(tokens):
     return verb_list, noun_list,verb_noun_string.strip()
 
 
-def show_triple(tokens, text, triple):
-    """Prints the given triple (left, head, right).  For left and right,
-    the entire phrase headed by each token is shown.  For head, only
-    the head token itself is shown.
-
-    """
-    #nsubj, verb, dobj = triple
-    verb, dobj = triple
-
-    # Extract the text for each element of the triple.
-    #nsubj_text = phrase_text_for_head(tokens, text, nsubj)
-    verb_text = tokens[verb]['text']['content']
-    dobj_text = phrase_text_for_head(tokens, text, dobj)
-
-    left = textwrap.wrap(verb_text, width=10)
-    right = textwrap.wrap(dobj_text, width=28)
-    parsed_string = left[0]+' '+right[0]
-    return parsed_string
-
-def entities_text(text):
-    """Detects entities in the text."""
-    client = language_v1beta2.LanguageServiceClient()
-
-    if isinstance(text, six.binary_type):
-        text = text.decode('utf-8')
-
-    # Instantiates a plain text document.
-    document = types.Document(
-        content=text,
-        type=enums.Document.Type.PLAIN_TEXT)
-
-    # Detects entities in the document. You can also analyze HTML with:
-    #   document.type == enums.Document.Type.HTML
-    entities = client.analyze_entities(document).entities
-
-    # entity types from enums.Entity.Type
-    entity_type = ('UNKNOWN', 'PERSON', 'LOCATION', 'ORGANIZATION',
-                   'EVENT', 'WORK_OF_ART', 'CONSUMER_GOOD', 'OTHER')
-    entity_string = ''
-    entity_list= []
-    for entity in entities:
-        entity_string += " "+entity.name.decode('utf-8')
-        entity_list.append(entity.name.decode('utf-8'))
-    return entity_string, entity_list
-
 def main(text):
-    parsed_string = None
     analysis = analyze_syntax(text)
     tokens = analysis.get('tokens', [])
-    verb_list, noun_list,verb_noun_string = find_verb_noun(tokens)
-    for triple in find_triples(tokens):
-        parsed_string = show_triple(tokens, text, triple)
-    #entity_string, entity_list = entities_text(text)
-    return verb_noun_string,parsed_string, None, []
+    verb_list, noun_list, verb_noun_string = find_verb_noun(tokens)
+    return verb_noun_string, verb_list, noun_list

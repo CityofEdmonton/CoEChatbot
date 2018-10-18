@@ -73,8 +73,8 @@ def home_post():
         old_question, respons = database_logger.check_log_question_tem(event_data['user']['displayName'])
         if old_question is None:
             question = clean_message(event_data['message']['text'])
-            verb_noun_string,parsed_string, entity_string, entity_list = nlp.main(question)
-            resp = create_card_response(verb_noun_string,entity_string,entity_list,event_data['message']['text'],event_data['user']['displayName'])
+            verb_noun_string, verb_list, noun_list = nlp.main(question)
+            resp = create_card_response(verb_noun_string, verb_list, noun_list, event_data['message']['text'],event_data['user']['displayName'])
         else:
             database_logger.delete_log_question_tem(event_data['user']['displayName'], old_question)
             if respons == 'ask':
@@ -132,7 +132,7 @@ def send_async_response(response, space_name, thread_id):
         parent=space_name,
         body=response).execute()
 
-def create_card_response(verb_noun_string,entity_string,entity_list,event_message,user_name):
+def create_card_response(verb_noun_string, verb_list, noun_list, event_message, user_name):
     """Creates a card response based on the message sent in Hangouts Chat.
     """
     question_from_user = clean_message(event_message).encode('utf-8')
@@ -199,7 +199,7 @@ def create_email_respons(question,event_message,user_name, user_email):
     button2value = 'dont send email'
     text1 = 'Question: '+ question
     text2 = 'Description: '+ email_description
-    return cardsFactory._text_card_with_email_with_two_buttons(headertitle, headerimage, text1, text2, button1text, button2text, button1value, button2value)     
+    return cardsFactory._text_card_with_two_buttons(headertitle, headerimage, text1, text2, button1text, button2text, button1value, button2value)     
 
 def create_group_card_respons(question,event_message,user_name, user_email):
     """Creates a card response based on the message sent in Hangouts Chat.
@@ -213,7 +213,7 @@ def create_group_card_respons(question,event_message,user_name, user_email):
     button2value = 'dont send email'
     text1 = 'Question: '+ question
     text2 = 'Description: '+ issue_discription
-    return cardsFactory._text_card_with_email_with_two_buttons(headertitle, headerimage, text1, text2, button1text, button2text, button1value, button2value)    
+    return cardsFactory._text_card_with_two_buttons(headertitle, headerimage, text1, text2, button1text, button2text, button1value, button2value)    
 
 def create_addquestion_card_respons(question,event_message,user_name, user_email):
     """Creates a card response based on the message sent in Hangouts Chat.
@@ -227,7 +227,7 @@ def create_addquestion_card_respons(question,event_message,user_name, user_email
     button2value = 'dont add'
     text1 = 'Question: '+ question
     text2 = 'Answer: '+ answer
-    return cardsFactory._text_card_with_email_with_two_buttons(headertitle, headerimage, text1, text2, button1text, button2text, button1value, button2value)   
+    return cardsFactory._text_card_with_two_buttons(headertitle, headerimage, text1, text2, button1text, button2text, button1value, button2value)   
 
 def respond_to_interactive_card_click(action_name, custom_params,user, user_email):
     """Creates a response for when the user clicks on an interactive card.
@@ -242,7 +242,7 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
 
         except: 
             value = str(index)
-            
+
             if value =='ask_team': 
                 text = "Hi "
                 for support_staff in library.SUPPORT_USER_ID:
@@ -284,6 +284,8 @@ def clean_message (event_message):
         return event_message.replace(' @JacksonBot ','')
     elif ' @JacksonBot' in event_message:
         return event_message.replace(' @JacksonBot','')
+    elif '@JacksonBot ' in event_message:
+        return event_message.replace('@JacksonBot ','')
     elif 'JacksonBot' in event_message:
         return event_message.replace('JacksonBot','')
     else:
