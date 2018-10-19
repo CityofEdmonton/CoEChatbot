@@ -60,6 +60,23 @@ def _respons_text_with_bottom_link_card(type,title,text,buttonText,buttonUrl):
                 }
 
 
+def _text_with_bottom_link_card(title,text,buttonText,buttonUrl):
+            return {
+                "cards": [
+                {
+                'header': {'title': title, 'subtitle': 'City of Edmonton chatbot','imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png','imageStyle': 'IMAGE'}
+                },                      
+                {
+                "sections": [
+                {
+                "widgets": [
+                {"textParagraph": {"text": text}},
+                {'buttons': [{'textButton': {'text': buttonText, 'onClick': {'openLink': {'url': buttonUrl}}}}]}
+                ]
+                }]
+                }
+                ]
+                }
 
 def _text_card_with_image(headertitle, headerimage,text, widgetimage):
             return {
@@ -111,7 +128,7 @@ def _text_card_with_image_with_three_buttons(headertitle, headerimage,text, widg
             ]
             }
 
-def _text_card_with_email_with_two_buttons(headertitle, headerimage,text1,text2, button1text, button2text, button1value, button2value):
+def _text_card_with_two_buttons(headertitle, headerimage,text1,text2, button1text, button2text, button1value, button2value):
             return {
             'cards': [{'header': {'title': headertitle,  'subtitle': 'City of Edmonton chatbot','imageUrl': headerimage,'imageStyle': 'IMAGE'}}, 
             {'sections':[{

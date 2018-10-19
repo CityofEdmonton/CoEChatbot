@@ -7,6 +7,7 @@ import library
 from googlesearch import search
 import requests
 from bs4 import BeautifulSoup
+import urllib2
 
 es = Elasticsearch(['http://104.199.118.220:8080'],
                     send_get_body_as='POST',)
@@ -67,19 +68,24 @@ def elasticsearch(parsed_string):
     return result_list
 
 
-def getTheAns(index):
-    action_response = 'UPDATE_MESSAGE'
+def getTheAns(index, action):
     res = es.get(index=library.GROUP, doc_type='question', id=index)
-    if res['_source']['link'] != None:
-        return cardsFactory._respons_text_with_bottom_link_card(action_response,res['_source']['question'],res['_source']['answer'], "The link ...", res['_source']['link'])
+    if action is None:
+        if res['_source']['link'] != None:
+            return cardsFactory._text_with_bottom_link_card(res['_source']['question'],res['_source']['answer'], "The link ...", res['_source']['link'])
+        else:
+            return cardsFactory._text_card(res['_source']['question'],res['_source']['answer']) 
     else:
-        return cardsFactory._respons_text_card(action_response,res['_source']['question'],res['_source']['answer'])  
+        if res['_source']['link'] != None:
+            return cardsFactory._respons_text_with_bottom_link_card(action,res['_source']['question'],res['_source']['answer'], "The link ...", res['_source']['link'])
+        else:
+            return cardsFactory._respons_text_card(action,res['_source']['question'],res['_source']['answer'])  
 
 def google_search(search_data):
+
     response = dict()
     cards = list()
     widgets = list()
-    num = 1
     header = {
     'header': {
     'title': 'Google result for '+search_data,
@@ -89,12 +95,12 @@ def google_search(search_data):
     }
     }
     cards.append(header)
-    for url in search(search_data, stop=1, only_standard=True):
-        title = "Google search result "+str(num)
+    for url in search(search_data, start = 1,stop=2, num=3,pause=1.5):
+        soup = BeautifulSoup(urllib2.urlopen(url), features="lxml")
+        title = soup.title.string
         widgets.append(
             {'buttons': [{'textButton': {'text': title, 'onClick': {'openLink': {'url': url}}}}]}
         )
-        num += 1
     cards.append({ 'sections': [{ 'widgets': widgets }]})
     response['cards'] = cards   
     return response

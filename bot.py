@@ -163,15 +163,23 @@ def create_card_response(verb_noun_string, verb_list, noun_list, event_message, 
             button3value = 'didnt_help'
             button1value = 'google_search: '+question_from_user
             database_logger.logging_to_database(user_name, question_from_user,"NOT FOUND",parsed_key_words, "Null", "Null")
-            return cardsFactory._text_card_with_image_with_three_buttons(headertitle, headerimage,text, widgetimage, button1text, button2text,button3text, button1value, button2value, button3value)     
-            
+            return cardsFactory._text_card_with_image_with_three_buttons(headertitle, headerimage,text, widgetimage, button1text, button2text,button3text, button1value, button2value, button3value)   
+
+        elif (len(related_questions_list)==1): 
+            for each_list in related_questions_list:
+                question = each_list[0]
+                index = each_list[1]
+            theAnswer = search.getTheAns(index, None)
+            database_logger.logging_to_database(user_name, question_from_user,related_questions_list,parsed_key_words, search_used, group)
+            return theAnswer
+
         else:
             response = dict()
             cards = list()
             widgets = list()
             header = {
                 'header': {
-                'title': 'Search result for '+question_from_user,
+                'title': 'Search result for '+ question_from_user,
                 'subtitle': 'City of Edmonton chatbot',
                 'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png',
                 'imageStyle': 'IMAGE'
@@ -236,7 +244,7 @@ def create_addquestion_card_respons(question,event_message,user_name, user_email
     button1value = question + ' add_question ' + answer + 'add_link' + link
     button2value = 'dont_add'
     text1 = 'Question: '+ question
-    text2 = 'Answer: '+ answer
+    text2 = 'Answer: '+ answer +'\nLink: '+ link
     return cardsFactory._text_card_with_two_buttons(headertitle, headerimage, text1, text2, button1text, button2text, button1value, button2value)   
 
 def respond_to_interactive_card_click(action_name, custom_params,user, user_email):
@@ -246,7 +254,7 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
         index = custom_params[0]['value']
         try:
             int(index)
-            theAnswer = search.getTheAns(index)
+            theAnswer = search.getTheAns(index, 'UPDATE_MESSAGE')
             database_logger.update_selected_answer(user, index)
             return theAnswer
 
@@ -269,7 +277,7 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
                 link = answer_link_list[1]
                 search.add_question_to_db(question, answer, link)
                 headertitle = 'Add question to DB'
-                text = "Just added. \nQuestion: "+question+"\nAnswer: "+answer
+                text = "Just added! \nQuestion: "+question+"\nAnswer: "+answer
                 return cardsFactory._respons_text_card('UPDATE_MESSAGE',headertitle, text)
 
             elif 'google_search: ' in value:
