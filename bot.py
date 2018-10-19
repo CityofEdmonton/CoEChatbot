@@ -149,21 +149,10 @@ def create_card_response(verb_noun_string, verb_list, noun_list, event_message, 
 
     else:
         related_questions_list=[]
-        related_questions_list, search_used, group=search.main(parsed_key_words, question_from_user)
+        related_questions_list, search_used, group = search.main(parsed_key_words, question_from_user)
 
         if (len(related_questions_list)==0):
-            text = 'Sorry, no answers found. Do you want to ask one of our support team members? Or do you want to search on Google first? '
-            headertitle = 'Search result'
-            headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
-            widgetimage = 'https://get.whotrades.com/u3/photo843E/20389222600-0/big.jpeg'
-            button2text = 'Ask support team!'
-            button3text = 'No, thanks.'
-            button1text = 'Google for me!'
-            button2value = question_from_user
-            button3value = 'didnt_help'
-            button1value = 'google_search: '+question_from_user
-            database_logger.logging_to_database(user_name, question_from_user,"NOT FOUND",parsed_key_words, "Null", "Null")
-            return cardsFactory._text_card_with_image_with_three_buttons(headertitle, headerimage,text, widgetimage, button1text, button2text,button3text, button1value, button2value, button3value)   
+            return search.google_search(question_from_user)
 
         elif (len(related_questions_list)==1): 
             for each_list in related_questions_list:
@@ -279,10 +268,6 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
                 headertitle = 'Add question to DB'
                 text = "Just added! \nQuestion: "+question+"\nAnswer: "+answer
                 return cardsFactory._respons_text_card('UPDATE_MESSAGE',headertitle, text)
-
-            elif 'google_search: ' in value:
-                question = value.replace('google_search: ','')
-                return search.google_search(question)
 
             elif 'Email_from: 'in value:
                 sent = send_email(value, user_email)

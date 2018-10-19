@@ -82,6 +82,7 @@ def getTheAns(index, action):
         else:
             return cardsFactory._respons_text_card(action,res['_source']['question'],res['_source']['answer'])  
 
+
 def google_search(search_data):
 
     response = dict()
@@ -95,16 +96,58 @@ def google_search(search_data):
     'imageStyle': 'IMAGE'
     }
     }
+    button1text = 'Ask support team!'
+    button2text = 'No, thanks.'
+    button1value = search_data
+    button2value = 'didnt_help'
     cards.append(header)
-    for url in google_support_search.search_with_customized(search_data, start = 0,stop=2, num=3,pause=1.5, domains=['support.google.com']):
-        soup = BeautifulSoup(urllib2.urlopen(url), features="lxml")
-        title = soup.title.string
+    found = False
+    for url in google_support_search.search_with_customized(search_data, start=0,stop=2, num=3,pause=1.5, domains=['support.google.com']):
+        found = True
+        title = findTitle(url)
         widgets.append(
             {'buttons': [{'textButton': {'text': title, 'onClick': {'openLink': {'url': url}}}}]}
         )
+
+    if not found:
+        text = "Sorry, no answers found. Do you want to ask one of our support team members?"
+        widgets.append(
+        {'textParagraph': {'text': text}}
+        )
+
+    widgets.append(
+    {'buttons': [{'textButton': {'text': button1text,'onClick': {'action': {'actionMethodName': "doTextButtonAction",'parameters': [{'key': "param_key",'value': button1value}]}}}}]}
+    )
+    widgets.append(
+    {'buttons': [{'textButton': {'text': button2text,'onClick': {'action': {'actionMethodName': "doTextButtonAction",'parameters': [{'key': "param_key",'value': button2value}]}}}}]}
+    )
     cards.append({ 'sections': [{ 'widgets': widgets }]})
     response['cards'] = cards   
     return response
+
+
+def findTitle(url):
+    webpage = urllib2.urlopen(url).read()
+    title = str(webpage).split('<title>')[1].split('</title>')[0]
+    return html_decode(title)
+
+
+def html_decode(s):
+    """
+    Returns the ASCII decoded version of the given HTML string. This does
+    NOT remove normal HTML tags like <p>.
+    """
+    htmlCodes = (
+            ("'", '&#39;'),
+            ('"', '&quot;'),
+            ('>', '&gt;'),
+            ('<', '&lt;'),
+            ('&', '&amp;')
+        )
+    for code in htmlCodes:
+        s = s.replace(code[1], code[0])
+    return s
+
 
 def main(parsed_string, user_input):
     if parsed_string == "":
