@@ -8,6 +8,7 @@ from googlesearch import search
 import requests
 from bs4 import BeautifulSoup
 import urllib2
+import google_support_search
 
 es = Elasticsearch(['http://104.199.118.220:8080'],
                     send_get_body_as='POST',)
@@ -95,7 +96,7 @@ def google_search(search_data):
     }
     }
     cards.append(header)
-    for url in search(search_data, start = 1,stop=2, num=3,pause=1.5):
+    for url in google_support_search.search_with_customized(search_data, start = 1,stop=2, num=3,pause=1.5, domains=['support.google.com']):
         soup = BeautifulSoup(urllib2.urlopen(url), features="lxml")
         title = soup.title.string
         widgets.append(

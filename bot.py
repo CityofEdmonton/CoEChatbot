@@ -315,7 +315,7 @@ def clean_message (event_message):
 
 def check_pre_defined_questions(question_from_user, user_name, parsed_key_words):
     for word in library.CHEER_LIST:
-        if search.similar(question_from_user, word)>=0.7 or word.lower() in question_from_user.lower():
+        if search.similar(question_from_user, word)>=0.7:
             text = ("Hey! "+user_name+" Thank you for talking to Chatbot about Chatbot :D Please type <b>'help'</b> to get the list of questions I could answer for now!")
             headertitle = 'Hi~'
             headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
