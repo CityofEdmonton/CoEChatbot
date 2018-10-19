@@ -96,7 +96,7 @@ def google_search(search_data):
     }
     }
     cards.append(header)
-    for url in google_support_search.search_with_customized(search_data, start = 1,stop=2, num=3,pause=1.5, domains=['support.google.com']):
+    for url in google_support_search.search_with_customized(search_data, start = 0,stop=2, num=3,pause=1.5, domains=['support.google.com']):
         soup = BeautifulSoup(urllib2.urlopen(url), features="lxml")
         title = soup.title.string
         widgets.append(
