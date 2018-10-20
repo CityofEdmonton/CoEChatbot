@@ -152,6 +152,7 @@ def create_card_response(verb_noun_string, verb_list, noun_list, event_message, 
         related_questions_list, search_used, group = search.main(parsed_key_words, question_from_user)
 
         if (len(related_questions_list)==0):
+            database_logger.logging_to_database(user_name, question_from_user,"NOT FOUND",parsed_key_words, "Null", "Null")
             return search.google_search(question_from_user)
 
         elif (len(related_questions_list)==1): 
