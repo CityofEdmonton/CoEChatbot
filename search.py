@@ -12,7 +12,7 @@ import google_domain_search
 
 es = Elasticsearch(['http://104.199.118.220:8080'],
                     send_get_body_as='POST',)
-SIMILAR_RATE = 0.55
+SIMILAR_RATE = 0.6
 
 def add_question_to_db(question, answer, link):
     if link == 'Null':
