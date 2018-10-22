@@ -53,17 +53,13 @@ def get_random_user_agent():
     """
     Get a random user agent string.
 
-    @rtype:  str
-    @return: Random user agent string.
     """
     return random.choice(user_agents_list)
 
 
 # Request the given URL and return the response page, using the cookie jar.
-def get_page(url, user_agent=None):
+def get_page(url):
 
-    if user_agent is None:
-        user_agent = USER_AGENT
     request = Request(url)
     request.add_header('User-Agent', USER_AGENT)
     response = urlopen(request)
@@ -95,6 +91,8 @@ def filter_customized_result(link, domains):
     except Exception:
         pass
     return None
+
+
 # Returns a generator that yields URLs.
 def search_with_customized(query, tld='com', lang='en', tbs='0', safe='off', num=10, start=0,
            stop=None, domains=None, pause=2.0, only_standard=False,
@@ -140,6 +138,7 @@ def search_with_customized(query, tld='com', lang='en', tbs='0', safe='off', num
             iter_extra_params = extra_params.iteritems()
         except AttributeError:  # Or python>3?
             iter_extra_params = extra_params.items()
+            
         # Append extra GET_parameters to URL
         for k, v in iter_extra_params:
             url += url + ('&%s=%s' % (k, v))
@@ -177,7 +176,6 @@ def search_with_customized(query, tld='com', lang='en', tbs='0', safe='off', num
             if not link:
                 continue
             # Discard repeated results.
-
 
             h = hash(link)
             if h in hashes:
