@@ -74,7 +74,7 @@ def home_post():
         if old_question is None:
             question = clean_message(event_data['message']['text'])
             verb_noun_string, verb_list, noun_list = nlp.main(question)
-            resp = create_card_response(verb_noun_string, verb_list, noun_list, event_data['message']['text'],event_data['user']['displayName'])
+            resp = create_card_response(verb_noun_string, verb_list, noun_list, question,event_data['user']['displayName'])
         else:
             database_logger.delete_log_question_tem(event_data['user']['displayName'], old_question)
             if respons == 'ask':
@@ -138,7 +138,7 @@ def send_async_response(response, space_name, thread_id):
 def create_card_response(verb_noun_string, verb_list, noun_list, event_message, user_name):
     """Creates a card response based on the message sent in Hangouts Chat.
     """
-    question_from_user = clean_message(event_message).encode('utf-8')
+    question_from_user = event_message.encode('utf-8')
 
     parsed_key_words = verb_noun_string.encode('utf-8')
 
@@ -248,7 +248,7 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
             database_logger.update_selected_answer(user, index)
             return theAnswer
 
-        except: 
+        except Exception: 
             value = str(index)
 
             if value =='ask_team': 
