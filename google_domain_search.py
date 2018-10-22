@@ -15,11 +15,9 @@ import time
 import math
 
 if sys.version_info[0] > 2:
-    from http.cookiejar import LWPCookieJar
     from urllib.request import Request, urlopen
     from urllib.parse import quote_plus, urlparse, parse_qs
 else:
-    from cookielib import LWPCookieJar
     from urllib import quote_plus
     from urllib2 import Request, urlopen
     from urlparse import urlparse, parse_qs
@@ -59,7 +57,6 @@ def get_random_user_agent():
 
 # Request the given URL and return the response page, using the cookie jar.
 def get_page(url):
-
     request = Request(url)
     request.add_header('User-Agent', USER_AGENT)
     response = urlopen(request)
@@ -69,9 +66,6 @@ def get_page(url):
 
 def filter_customized_result(link, domains):
     try:
-
-        # Valid results are absolute URLs not pointing to a Google domain
-        # like images.google.com or googleusercontent.com
         o = urlparse(link, 'http')
         if o.netloc and o.netloc in domains:
             return link
@@ -80,8 +74,6 @@ def filter_customized_result(link, domains):
         if link.startswith('/url?'):
             link = parse_qs(o.query)['q'][0]
 
-            # Valid results are absolute URLs not pointing to a Google domain
-            # like images.google.com or googleusercontent.com
             o = urlparse(link, 'http')
 
             if o.netloc and o.netloc in domains:
@@ -117,9 +109,6 @@ def search_with_customized(query, tld='com', lang='en', tbs='0', safe='off', num
                 builtin_param
             )
 
-    # Grab the cookie from the home page.
-    #get_page(url_home % vars())
-
     # Prepare the URL of the first request.
     if start:
         if num == 10:
@@ -138,7 +127,7 @@ def search_with_customized(query, tld='com', lang='en', tbs='0', safe='off', num
             iter_extra_params = extra_params.iteritems()
         except AttributeError:  # Or python>3?
             iter_extra_params = extra_params.items()
-            
+
         # Append extra GET_parameters to URL
         for k, v in iter_extra_params:
             url += url + ('&%s=%s' % (k, v))
