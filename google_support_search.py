@@ -4,17 +4,6 @@ __all__ = [
     # Main search function.
     'search',
 
-    # Specialized search functions.
-    'search_images', 'search_news',
-    'search_videos', 'search_shop',
-    'search_books', 'search_apps',
-
-    # Shortcut for "get lucky" search.
-    'lucky',
-
-    # Computations based on the number of Google hits.
-    'hits', 'ngd',
-
     # Miscellaneous utility functions.
     'get_random_user_agent',
 ]
@@ -55,17 +44,6 @@ url_next_page_num = "https://www.google.%(tld)s/search?hl=%(lang)s&" \
                     "q=%(query)s&num=%(num)d&start=%(start)d&tbs=%(tbs)s&" \
                     "safe=%(safe)s&tbm=%(tpe)s"
 
-# Cookie jar. Stored at the user's home folder.
-home_folder = os.getenv('HOME')
-if not home_folder:
-    home_folder = os.getenv('USERHOME')
-    if not home_folder:
-        home_folder = '.'   # Use the current folder on error.
-cookie_jar = LWPCookieJar(os.path.join(home_folder, '.google-cookie'))
-try:
-    cookie_jar.load()
-except Exception:
-    pass
 
 # Default user agent, unless instructed by the user to change it.
 USER_AGENT = 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0)'
@@ -98,9 +76,7 @@ def get_page(url, user_agent=None):
         user_agent = USER_AGENT
     request = Request(url)
     request.add_header('User-Agent', USER_AGENT)
-    cookie_jar.add_cookie_header(request)
     response = urlopen(request)
-    cookie_jar.extract_cookies(response, request)
     html = response.read()
     response.close()
     return html
