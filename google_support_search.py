@@ -121,13 +121,13 @@ def get_page(url, user_agent=None):
     response.close()
     return html
 
-def filter_customized_result(link):
+def filter_customized_result(link, domains):
     try:
 
         # Valid results are absolute URLs not pointing to a Google domain
         # like images.google.com or googleusercontent.com
         o = urlparse(link, 'http')
-        if o.netloc and 'google' not in o.netloc:
+        if o.netloc and o.netloc in domains:
             return link
 
         # Decode hidden URLs.
@@ -138,7 +138,7 @@ def filter_customized_result(link):
             # like images.google.com or googleusercontent.com
             o = urlparse(link, 'http')
 
-            if o.netloc and 'support.google.com' in o.netloc:
+            if o.netloc and o.netloc in domains:
                 return link
 
     # Otherwise, or on error, return None.
@@ -234,7 +234,7 @@ def search_with_customized(query, tld='com', lang='en', tbs='0', safe='off', num
             )
 
     # Grab the cookie from the home page.
-    get_page(url_home % vars())
+    #get_page(url_home % vars())
 
     # Prepare the URL of the first request.
     if start:
@@ -268,12 +268,10 @@ def search_with_customized(query, tld='com', lang='en', tbs='0', safe='off', num
         # Parse the response and process every anchored URL.
         if is_bs4:
             soup = BeautifulSoup(html, 'html.parser')
-            title = soup.title.string
         else:
             soup = BeautifulSoup(html)
-            title = soup.title.string
         anchors = soup.find(id='search').findAll('a')
-        title = soup.title.string
+
         for a in anchors:
 
             # Leave only the "standard" results if requested.
@@ -288,11 +286,12 @@ def search_with_customized(query, tld='com', lang='en', tbs='0', safe='off', num
                 continue
 
             # Filter invalid links and links pointing to Google itself.
-            link = filter_customized_result(link)
+            link = filter_customized_result(link, domains)
 
             if not link:
                 continue
             # Discard repeated results.
+
 
             h = hash(link)
             if h in hashes:
