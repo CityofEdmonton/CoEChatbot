@@ -27,16 +27,6 @@ INTERACTIVE_BUTTON_PARAMETER_KEY = "param_key"
 @app.route('/', methods=['POST'])
 def home_post():
     """Respond to POST requests to this endpoint.
-    DELIMITER $$
-    CREATE EVENT `Every_1_Minutes_Cleanup`
-    ON SCHEDULE EVERY 1 MINUTE STARTS '2015-09-01 00:00:00'
-    ON COMPLETION PRESERVE
-    DO BEGIN
-     delete from history.email_tem_table 
-    where TIMESTAMPDIFF(SECOND, timestamp, now())>300; 
-    END;$$
-    DELIMITER ;
-
     All requests sent to this endpoint from Hangouts Chat are POST
     requests.
     """
