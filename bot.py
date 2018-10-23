@@ -221,7 +221,8 @@ def respond_to_interactive_card_click(action_name, custom_params,user, user_emai
                 sent = send_email(value, user_email)
                 if sent:
                     return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Create Remedy ticket", "Sent! Our support staff will contact you shortly.")
-            if value == 'didnt_help':
+                    
+            elif value == 'didnt_help':
                 return cardsFactory._respons_text_card('UPDATE_MESSAGE',"Sorry...", "Sorry for didn't help you. ")
 
             elif value == 'dont_add':
