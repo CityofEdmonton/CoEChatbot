@@ -133,10 +133,6 @@ def findTitle(url):
 
 
 def html_decode(s):
-    """
-    Returns the ASCII decoded version of the given HTML string. This does
-    NOT remove normal HTML tags like <p>.
-    """
     htmlCodes = (
             ("'", '&#39;'),
             ('"', '&quot;'),

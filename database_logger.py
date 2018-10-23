@@ -1,4 +1,3 @@
-# [START all]
 # https://stackoverflow.com/questions/14144150/passing-parameters-to-a-webapp2-requesthandler-object-in-python
 import os
 import MySQLdb

@@ -1,16 +1,5 @@
 # Copyright 2017 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 import datetime
 import logging
 import library
@@ -27,7 +16,6 @@ from flask import Flask, render_template, request, json, make_response
 from httplib2 import Http
 from oauth2client.service_account import ServiceAccountCredentials
 from difflib import SequenceMatcher
-
 
 app = Flask(__name__)
 
@@ -94,46 +82,15 @@ def home_post():
         print(event_data['user'])
         resp = respond_to_interactive_card_click(action_name, parameters, user, user_email)
 
-    space_name = event_data['space']['name']
-
     logging.info(resp)
 
-    # Uncomment the following line for a synchronous response.
     return json.jsonify(resp)
 
-    # Asynchronous response version:
-    thread_id = None
-    if event_data['message']['thread'] != None:
-        thread_id = event_data['message']['thread']
-
-    # Need to return a response to avoid an error in the Flask app
-    send_async_response(resp, space_name, thread_id)
-    return 'OK'
 
 @app.route('/', methods=['GET'])
 def home_get():
     return render_template('home.html')
 
-
-def send_async_response(response, space_name, thread_id):
-    """Sends a response back to the Hangouts Chat room asynchronously.
-    """
-
-    # The following two lines of code update the thread that raised the event.
-    # Delete them if you want to send the message in a new thread.
-    if thread_id != None:
-        response['thread'] = thread_id
-    ##################################
-
-    scopes = ['https://www.googleapis.com/auth/chat.bot']
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(
-        'service-acct.json', scopes)
-    http_auth = credentials.authorize(Http())
-
-    chat = build('chat', 'v1', http=http_auth)
-    chat.spaces().messages().create(
-        parent=space_name,
-        body=response).execute()
 
 def create_card_response(verb_noun_string, verb_list, noun_list, event_message, user_name):
     """Creates a card response based on the message sent in Hangouts Chat.
@@ -189,7 +146,7 @@ def create_card_response(verb_noun_string, verb_list, noun_list, event_message, 
             return response
  
 def create_email_respons(question,event_message,user_name, user_email):
-    """Creates a card response based on the message sent in Hangouts Chat.
+    """Creates an email card response based on the message sent in Hangouts Chat.
     """
     email_description = clean_message (event_message)
     headertitle = 'Email preview'
@@ -203,7 +160,7 @@ def create_email_respons(question,event_message,user_name, user_email):
     return cardsFactory._text_card_with_two_buttons(headertitle, headerimage, text1, text2, button1text, button2text, button1value, button2value)     
 
 def create_group_card_respons(question,event_message,user_name, user_email):
-    """Creates a card response based on the message sent in Hangouts Chat.
+    """Creates a issue preview card response based on the message sent in Hangouts Chat.
     """
     issue_discription = clean_message (event_message)
     headertitle = 'Issue preview'
@@ -217,7 +174,7 @@ def create_group_card_respons(question,event_message,user_name, user_email):
     return cardsFactory._text_card_with_two_buttons(headertitle, headerimage, text1, text2, button1text, button2text, button1value, button2value)    
 
 def create_addquestion_card_respons(question,event_message,user_name, user_email):
-    """Creates a card response based on the message sent in Hangouts Chat.
+    """Creates a question preview card response based on the message sent in Hangouts Chat.
     """
     answer_and_link = clean_message (event_message)
     data = answer_and_link.split('link:')
