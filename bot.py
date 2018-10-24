@@ -156,7 +156,7 @@ def create_group_card_respons(question,event_message,user_name, user_email):
     headertitle = 'Issue preview'
     headerimage = 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png'
     button1text = 'Ask now!'
-    button2text = 'No, I will search again.'
+    button2text = 'Exit and search again.'
     button1value = 'ask_team'
     button2value = 'didnt_help'
     text1 = 'Question: '+ question
