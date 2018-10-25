@@ -12,7 +12,7 @@ import google_domain_search
 
 es = Elasticsearch(['http://104.199.118.220:8080'],
                     send_get_body_as='POST',)
-SIMILAR_RATE = 0.6
+SIMILAR_RATE = "80%"
 
 def add_question_to_db(question, answer, link):
     if link == 'Null':
@@ -47,23 +47,13 @@ def check_question_db():
     es.indices.refresh(index=library.GROUP)
 
 
-def search_related_rate(parsed_string):
-    related_questions_list = []
-    res = es.search(index=library.GROUP, body={'size' : 10000, "query": {"match_all": {}}})
-    for hit in res['hits']['hits']:
-        question = hit["_source"]['question']
-        if similar(parsed_string,question)>=SIMILAR_RATE:
-            related_questions_list.append([question, hit["_id"]])
-    return related_questions_list
-
-
 def similar(stringA, stringB):
     return SequenceMatcher(None, stringA.lower(), stringB.lower()).ratio()
 
 
 def elasticsearch(parsed_string):
     result_list = []
-    res = es.search(index=library.GROUP, body={'query':{ 'match_phrase':{ "question":parsed_string}} })
+    res = es.search(index=library.GROUP,  body={'query':{ 'match':{ "question":{'query': parsed_string,"minimum_should_match": SIMILAR_RATE}} }})
     for hit in res['hits']['hits']:
         result_list.append([hit["_source"]['question'], hit["_id"]])
     return result_list
@@ -151,7 +141,4 @@ def main(parsed_string, user_input):
 
     search_used = "Elastic"
     result_list = elasticsearch(parsed_string)
-    if len(result_list) == 0:
-        result_list = search_related_rate(parsed_string)
-        search_used = "Keywords"
     return result_list, search_used, library.GROUP
