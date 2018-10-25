@@ -10,8 +10,9 @@ from bs4 import BeautifulSoup
 import urllib2
 import google_domain_search
 
-es = Elasticsearch(['http://104.199.118.220:8080'],
+es = Elasticsearch(['http://35.197.25.230:8080'],
                     send_get_body_as='POST',)
+
 SIMILAR_RATE = "80%"
 
 def add_question_to_db(question, answer, link):
