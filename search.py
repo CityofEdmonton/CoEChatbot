@@ -93,6 +93,7 @@ def google_search(search_data):
     button2value = 'didnt_help'
     cards.append(header)
     found = False
+    # WARNING!! 1.5 seconds is already small enough, DO NOT change the pause time, otherwise the app will be blocked
     for url in google_domain_search.search_with_customized(search_data, start=0,stop=2, num=3,pause=1.5, domains=['support.google.com']):
         found = True
         title = findTitle(url)
