@@ -9,8 +9,13 @@ import requests
 from bs4 import BeautifulSoup
 import urllib2
 import google_domain_search
+import json
 
-es = Elasticsearch(['http://35.230.52.2:8080'],
+with open(os.path.join(os.path.dirname(__file__),"appsettings.json"), 'r') as Data:
+    data = json.load(Data)
+    elasticsearchIP = data.get('ElasticsearchIP', '')
+
+es = Elasticsearch([elasticsearchIP],
                     send_get_body_as='POST',)
 
 SIMILAR_RATE = "80%"
