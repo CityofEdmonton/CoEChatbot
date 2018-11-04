@@ -116,7 +116,7 @@ def create_card_response(verb_noun_string, verb_list, noun_list, event_message, 
             widgets = list()
             header = {
                 'header': {
-                'title': 'Search result for '+ question_from_user,
+                'title': 'Answers for '+ question_from_user,
                 'subtitle': 'City of Edmonton chatbot',
                 'imageUrl': 'http://www.gwcl.ca/wp-content/uploads/2014/01/IMG_4371.png',
                 'imageStyle': 'IMAGE'
