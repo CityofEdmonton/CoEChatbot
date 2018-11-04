@@ -18,7 +18,7 @@ with open(os.path.join(os.path.dirname(__file__),"appsettings.json"), 'r') as Da
 es = Elasticsearch([elasticsearchIP],
                     send_get_body_as='POST',)
 
-SIMILAR_RATE = "80%"
+SIMILAR_RATE = "70%"
 
 def add_question_to_db(question, answer, link):
     if link == 'Null':
