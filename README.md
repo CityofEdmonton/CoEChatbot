@@ -85,25 +85,10 @@ from tempfile import TemporaryFile
 ```
 virtualenv deactivate
 ```
-## Security the vm
 
-Commends for adding rules to vm:
-
-sudo ufw allow from TRUSTED_IP to any port 8080
-
-sudo ufw status
-
-sudo ufw status numbered
-
-sudo ufw delete THENUMBER
-
-Current status:
-To                         Action      From
---                         ------      ----
-22                         ALLOW       Anywhere                  
-8080                       ALLOW       13.77.183.217             
-8080/tcp                   ALLOW       Anywhere                  
-22 (v6)                    ALLOW       Anywhere (v6)             
-8080/tcp (v6)              ALLOW       Anywhere (v6) 
-
-flex: https://cloud.google.com/appengine/docs/flexible/custom-runtimes/configuring-your-app-with-app-yaml#network_settings
+## Format of secret file:
+{
+	"ElasticsearchIP": "",
+	"user": "",
+	"secret": ""
+}
