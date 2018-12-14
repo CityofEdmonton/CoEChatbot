@@ -14,9 +14,12 @@ import json
 with open(os.path.join(os.path.dirname(__file__),"appsettings.json"), 'r') as Data:
     data = json.load(Data)
     elasticsearchIP = data.get('ElasticsearchIP', '')
+    user = data.get('user', '')
+    secret = data.get('secret', '')
 
 es = Elasticsearch([elasticsearchIP],
-                    send_get_body_as='POST',)
+                    send_get_body_as='POST',
+                    http_auth=(user, secret),)
 
 SIMILAR_RATE = "70%"
 
